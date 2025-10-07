@@ -1,73 +1,164 @@
-# Welcome to your Lovable project
+# 🤖 AI WhatsApp SaaS - Multi-Agentes White Label
 
-## Project info
+Plataforma SaaS completa para agências gerenciarem múltiplos clientes e agentes de IA no WhatsApp com isolamento multi-tenant, automação de campanhas e integrações poderosas.
 
-**URL**: https://lovable.dev/projects/9e0a35f5-dd86-409c-a838-f0731602913c
+## 🎯 Características
 
-## How can I edit this code?
+### ✅ Fase 1 - MVP (Implementado)
+- 🔐 **Autenticação Segura** - Login/Signup com Lovable Cloud
+- 👥 **Multi-Tenant** - Isolamento total por agência via RLS
+- 📊 **Dashboard** - Métricas e visão geral do sistema
+- 🏢 **CRUD Clientes** - Gerenciamento completo de clientes
+- 🤖 **CRUD Agentes IA** - Configuração de agentes com prompts personalizados
+- 🎨 **Design Premium** - Interface dark mode com gradientes e animações
+- 📱 **Responsivo** - Mobile-first, funciona perfeitamente em todos dispositivos
 
-There are several ways of editing your application.
+### 🚀 Stack Tecnológico
+- **Frontend**: React 18 + TypeScript + Vite
+- **Styling**: Tailwind CSS + Shadcn UI + Design System Premium
+- **Backend**: Lovable Cloud (Supabase)
+- **Database**: PostgreSQL com RLS
+- **Auth**: Supabase Auth
+- **Real-time**: Supabase Realtime (preparado)
 
-**Use Lovable**
+## 🏗️ Arquitetura Multi-Tenant
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/9e0a35f5-dd86-409c-a838-f0731602913c) and start prompting.
+```
+Agencies (White Label)
+  └── Profiles (Users)
+  └── Clients
+       └── Agents (IA)
+            └── Conversations (futuro)
+                 └── Messages (futuro)
+```
 
-Changes made via Lovable will be committed automatically to this repo.
+### Segurança RLS
+- ✅ Dados isolados por `agency_id`
+- ✅ Políticas de segurança granulares
+- ✅ Function security definer para roles
+- ✅ Trigger automático para criação de perfis
 
-**Use your preferred IDE**
+## 🎨 Design System
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Cores Principais
+```css
+--primary: Verde Esmeralda (160 84% 39%)
+--secondary: Azul Ciano (186 100% 46%)
+--success: Verde Sucesso (142 76% 36%)
+--background: Azul Escuro (220 26% 14%)
+```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Gradientes
+- `gradient-primary`: Verde → Verde Claro
+- `gradient-secondary`: Ciano → Ciano Claro
+- `gradient-hero`: Verde → Ciano
+- `gradient-card`: Sombra de card elegante
 
-Follow these steps:
+### Animações
+- Hover com glow effect
+- Fade-in nos cards
+- Transições suaves (0.3s)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 📦 Como Usar
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 1. Clone e Instale
+```bash
+git clone <seu-repo>
+npm install
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+### 2. Configure o Ambiente
+O projeto já está conectado ao Lovable Cloud! As variáveis são gerenciadas automaticamente.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### 3. Execute
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### 4. Crie sua Conta
+1. Acesse `/auth`
+2. Crie uma conta (auto-confirmação ativada)
+3. Você será automaticamente vinculado à "Demo Agency"
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🔮 Próximas Fases
 
-**Use GitHub Codespaces**
+### Fase 2 - Automação
+- [ ] Campanhas WhatsApp com CSV upload
+- [ ] Follow-ups automáticos (até 3 níveis)
+- [ ] Worker para processamento assíncrono
+- [ ] Preview de mensagens antes de enviar
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Fase 3 - Integrações
+- [ ] Simulador WhatsApp com QR Code
+- [ ] Google Calendar OAuth
+- [ ] Webhooks entrada/saída com HMAC
+- [ ] Roteamento inteligente de mensagens
 
-## What technologies are used for this project?
+### Fase 4 - White Label Completo
+- [ ] Subdomínios por agência
+- [ ] Logos e cores personalizadas
+- [ ] Deploy em produção
+- [ ] Documentação completa
 
-This project is built with:
+### Fase Extra - IA Avançada
+- [ ] Integração com Lovable AI
+- [ ] Humanização de respostas (delays, erros de digitação)
+- [ ] Histórico de conversas
+- [ ] Análise de sentimentos
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📊 Schema do Banco
 
-## How can I deploy this project?
+### Tabelas Principais
+- `agencies` - Agências (white label base)
+- `profiles` - Perfis de usuários
+- `user_roles` - Roles (admin/user)
+- `clients` - Clientes das agências
+- `agents` - Agentes de IA configuráveis
 
-Simply open [Lovable](https://lovable.dev/projects/9e0a35f5-dd86-409c-a838-f0731602913c) and click on Share -> Publish.
+### Próximas Tabelas
+- `campaigns` - Campanhas WhatsApp
+- `conversations` - Histórico de conversas
+- `messages` - Mensagens individuais
+- `webhooks` - Integrações externas
 
-## Can I connect a custom domain to my Lovable project?
+## 🛡️ Segurança
 
-Yes, you can!
+- ✅ Row Level Security (RLS) ativo em todas as tabelas
+- ✅ Políticas baseadas em `agency_id`
+- ✅ Função security definer para check de roles
+- ✅ Trigger automático para criação de perfis
+- ✅ Foreign keys com CASCADE
+- ✅ Auto-confirmação de email (desenvolvimento)
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🎯 Decisões de Design
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+1. **Dark Theme First** - Mais moderno e profissional
+2. **Gradientes Sutis** - Visual premium sem poluir
+3. **Animações Suaves** - UX fluida e agradável
+4. **Mobile First** - Sidebar colapsável, breakpoints responsivos
+5. **Design System Centralizado** - `index.css` + `tailwind.config.ts`
+
+## 📝 Commits Sugeridos (Histórico)
+
+```
+feat(database): setup multi-tenant schema with RLS
+feat(auth): implement secure login/signup flow
+feat(dashboard): add metrics and overview page
+feat(clients): implement full CRUD with modal forms
+feat(agents): add agent configuration with prompts
+style(design): apply premium dark theme with gradients
+docs(readme): add comprehensive project documentation
+```
+
+## 🤝 Contribuindo
+
+Este é um projeto inicial (MVP). As próximas fases serão implementadas incrementalmente seguindo a arquitetura proposta.
+
+## 📄 Licença
+
+Proprietário - Desenvolvido com Lovable
+
+---
+
+**Status Atual**: ✅ Fase 1 (MVP) Completa
+**Próximo Milestone**: Fase 2 (Campanhas e Automação)
