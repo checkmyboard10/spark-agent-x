@@ -10,7 +10,8 @@ import {
   Bot, 
   LogOut,
   Menu,
-  X
+  X,
+  Send
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -22,6 +23,7 @@ const navItems = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
   { path: "/clients", label: "Clientes", icon: Users },
   { path: "/agents", label: "Agentes IA", icon: Bot },
+  { path: "/campaigns", label: "Campanhas", icon: Send },
 ];
 
 export default function Layout({ children }: LayoutProps) {

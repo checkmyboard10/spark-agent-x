@@ -100,6 +100,185 @@ export type Database = {
           },
         ]
       }
+      campaign_contacts: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          custom_fields: Json | null
+          email: string | null
+          error_message: string | null
+          id: string
+          last_interaction: string | null
+          name: string
+          phone: string
+          sent_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          custom_fields?: Json | null
+          email?: string | null
+          error_message?: string | null
+          id?: string
+          last_interaction?: string | null
+          name: string
+          phone: string
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          custom_fields?: Json | null
+          email?: string | null
+          error_message?: string | null
+          id?: string
+          last_interaction?: string | null
+          name?: string
+          phone?: string
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_contacts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaign_messages: {
+        Row: {
+          campaign_id: string
+          contact_id: string
+          created_at: string
+          error_message: string | null
+          followup_level: number
+          id: string
+          message_text: string
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          campaign_id: string
+          contact_id: string
+          created_at?: string
+          error_message?: string | null
+          followup_level?: number
+          id?: string
+          message_text: string
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          campaign_id?: string
+          contact_id?: string
+          created_at?: string
+          error_message?: string | null
+          followup_level?: number
+          id?: string
+          message_text?: string
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_messages_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_messages_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          agent_id: string
+          client_id: string
+          created_at: string
+          csv_meta: Json | null
+          delivered_count: number | null
+          failed_count: number | null
+          followups: Json | null
+          id: string
+          name: string
+          read_count: number | null
+          replied_count: number | null
+          scheduled_at: string | null
+          sent_count: number | null
+          status: string
+          template: string
+          total_contacts: number | null
+          updated_at: string
+        }
+        Insert: {
+          agent_id: string
+          client_id: string
+          created_at?: string
+          csv_meta?: Json | null
+          delivered_count?: number | null
+          failed_count?: number | null
+          followups?: Json | null
+          id?: string
+          name: string
+          read_count?: number | null
+          replied_count?: number | null
+          scheduled_at?: string | null
+          sent_count?: number | null
+          status?: string
+          template: string
+          total_contacts?: number | null
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string
+          client_id?: string
+          created_at?: string
+          csv_meta?: Json | null
+          delivered_count?: number | null
+          failed_count?: number | null
+          followups?: Json | null
+          id?: string
+          name?: string
+          read_count?: number | null
+          replied_count?: number | null
+          scheduled_at?: string | null
+          sent_count?: number | null
+          status?: string
+          template?: string
+          total_contacts?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaigns_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           active: boolean | null
