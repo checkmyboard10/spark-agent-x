@@ -9,6 +9,24 @@ import { Badge } from "@/components/ui/badge";
 
 export const APISettings = () => {
   const { toast } = useToast();
+  const { canManageSettings, isLoading } = usePermissions();
+
+  if (isLoading) {
+    return <div>Carregando...</div>;
+  }
+
+  if (!canManageSettings) {
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Acesso Restrito</AlertTitle>
+        <AlertDescription>
+          Apenas administradores e moderadores podem gerenciar configurações de API.
+          Entre em contato com um administrador.
+        </AlertDescription>
+      </Alert>
+    );
+  }
   const [apiKey] = useState("sk_test_***************************");
 
   const handleCopyKey = () => {

@@ -5,9 +5,27 @@ import { useState } from "react";
 import { Bell, Mail, Webhook } from "lucide-react";
 
 export const NotificationsSettings = () => {
+  const { canManageSettings, isLoading } = usePermissions();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [webhookNotifications, setWebhookNotifications] = useState(false);
   const [campaignAlerts, setCampaignAlerts] = useState(true);
+
+  if (isLoading) {
+    return <div>Carregando...</div>;
+  }
+
+  if (!canManageSettings) {
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Acesso Restrito</AlertTitle>
+        <AlertDescription>
+          Você não tem permissão para gerenciar notificações.
+          Entre em contato com um administrador.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="space-y-6">
