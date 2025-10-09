@@ -11,7 +11,8 @@ import {
   LogOut,
   Menu,
   X,
-  Send
+  Send,
+  Plug
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -24,6 +25,7 @@ const navItems = [
   { path: "/clients", label: "Clientes", icon: Users },
   { path: "/agents", label: "Agentes IA", icon: Bot },
   { path: "/campaigns", label: "Campanhas", icon: Send },
+  { path: "/integrations", label: "Integrações", icon: Plug },
 ];
 
 export default function Layout({ children }: LayoutProps) {

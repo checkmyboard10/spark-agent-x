@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Clients from "./pages/Clients";
 import Agents from "./pages/Agents";
 import Campaigns from "./pages/Campaigns";
+import Integrations from "./pages/Integrations";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/clients" element={<Layout><Clients /></Layout>} />
           <Route path="/agents" element={<Layout><Agents /></Layout>} />
           <Route path="/campaigns" element={<Layout><Campaigns /></Layout>} />
+          <Route path="/integrations" element={<Layout><Integrations /></Layout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
