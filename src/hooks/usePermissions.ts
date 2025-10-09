@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+type AppRole = "admin" | "moderator" | "user";
+
 export const usePermissions = () => {
   const { data: session } = useQuery({
     queryKey: ["session"],
@@ -19,19 +21,19 @@ export const usePermissions = () => {
         .from("user_roles")
         .select("role")
         .eq("user_id", session.user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching user role:", error);
         return null;
       }
 
-      return data?.role || "user";
+      return data?.role as AppRole | null;
     },
     enabled: !!session?.user?.id,
   });
 
-  const role = (userRole as "admin" | "moderator" | "user") || "user";
+  const role: AppRole = (userRole as AppRole) || "user";
   const isAdmin = role === "admin";
   const isModerator = role === "moderator";
   const isUser = role === "user";

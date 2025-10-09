@@ -131,7 +131,7 @@ export const TeamSettings = () => {
     }
   };
 
-  const handleRoleChange = async (userId: string, newRole: string) => {
+  const handleRoleChange = async (userId: string, newRole: "admin" | "moderator" | "user") => {
     try {
       const { error } = await supabase
         .from("user_roles")
@@ -219,7 +219,7 @@ export const TeamSettings = () => {
                 <div className="flex items-center gap-2">
                   <Select
                     value={member.user_roles?.[0]?.role || "user"}
-                    onValueChange={(value) => handleRoleChange(member.id, value)}
+                    onValueChange={(value) => handleRoleChange(member.id, value as "admin" | "moderator" | "user")}
                   >
                     <SelectTrigger className="w-[140px]">
                       <SelectValue />
