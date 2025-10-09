@@ -163,20 +163,53 @@ export const AppearanceSettings = () => {
             Personalize as cores da sua agência (formato HSL)
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <ColorPicker
-            label="Cor Primária"
-            value={primaryColor}
-            onChange={setPrimaryColor}
-            showInput={true}
-          />
+        <CardContent className="space-y-6">
+          <div className="space-y-2">
+            <ColorPicker
+              label="Cor Primária"
+              value={primaryColor}
+              onChange={setPrimaryColor}
+              showInput={true}
+            />
+            <p className="text-xs text-muted-foreground">
+              Usada em botões principais, links e elementos de destaque
+            </p>
+          </div>
 
-          <ColorPicker
-            label="Cor Secundária"
-            value={secondaryColor}
-            onChange={setSecondaryColor}
-            showInput={true}
-          />
+          <div className="space-y-2">
+            <ColorPicker
+              label="Cor Secundária"
+              value={secondaryColor}
+              onChange={setSecondaryColor}
+              showInput={true}
+            />
+            <p className="text-xs text-muted-foreground">
+              Usada em botões secundários e elementos de apoio
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Preview</Label>
+            <div className="flex gap-2 p-4 border rounded-lg bg-muted/30">
+              <Button 
+                style={{ 
+                  backgroundColor: `hsl(${primaryColor})`,
+                  color: 'white'
+                }}
+              >
+                Botão Primário
+              </Button>
+              <Button 
+                variant="secondary"
+                style={{ 
+                  backgroundColor: `hsl(${secondaryColor})`,
+                  color: 'white'
+                }}
+              >
+                Botão Secundário
+              </Button>
+            </div>
+          </div>
 
           <Button onClick={handleThemeUpdate}>
             Salvar Tema

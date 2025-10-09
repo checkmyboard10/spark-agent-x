@@ -152,10 +152,11 @@ export function ColorPicker({ value, onChange, label, showInput = true }: ColorP
         {showInput && (
           <div className="flex-1">
             <Input
-              value={hexValue}
-              onChange={(e) => handleHexInputChange(e.target.value)}
+              value={hslString}
+              onChange={(e) => handleHslInputChange(e.target.value)}
               className="font-mono"
-              placeholder="#10b981"
+              placeholder="160 84% 39%"
+              title="Formato HSL: matiz saturação% luminosidade%"
             />
           </div>
         )}
