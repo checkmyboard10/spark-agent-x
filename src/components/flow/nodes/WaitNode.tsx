@@ -2,9 +2,11 @@ import { memo } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Clock } from 'lucide-react';
 import { WaitNodeData } from '@/types/flow';
+import { getColorScheme } from '@/lib/flowColorSchemes';
 
 const WaitNode = ({ data, selected }: NodeProps) => {
   const nodeData = data as unknown as WaitNodeData;
+  const colorScheme = getColorScheme(nodeData.color);
   
   const formatDuration = () => {
     const { duration, unit } = nodeData;
@@ -21,7 +23,7 @@ const WaitNode = ({ data, selected }: NodeProps) => {
   };
   
   return (
-    <div className={`px-6 py-4 shadow-lg rounded-lg bg-gradient-to-br from-orange-500 to-amber-600 border-2 border-orange-400 min-w-[200px] ${selected ? 'ring-2 ring-primary' : ''}`}>
+    <div className={`px-6 py-4 shadow-lg rounded-lg bg-gradient-to-br ${colorScheme.gradient} border-2 ${colorScheme.border} min-w-[200px] ${selected ? 'ring-2 ring-primary' : ''}`}>
       <Handle
         type="target"
         position={Position.Top}

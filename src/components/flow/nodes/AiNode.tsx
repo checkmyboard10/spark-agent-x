@@ -2,12 +2,14 @@ import { memo } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Sparkles } from 'lucide-react';
 import { AiNodeData } from '@/types/flow';
+import { getColorScheme } from '@/lib/flowColorSchemes';
 
 const AiNode = ({ data, selected }: NodeProps) => {
   const nodeData = data as unknown as AiNodeData;
+  const colorScheme = getColorScheme(nodeData.color);
   
   return (
-    <div className={`px-6 py-4 shadow-lg rounded-lg bg-gradient-to-br from-pink-500 to-rose-600 border-2 border-pink-400 min-w-[220px] ${selected ? 'ring-2 ring-primary' : ''}`}>
+    <div className={`px-6 py-4 shadow-lg rounded-lg bg-gradient-to-br ${colorScheme.gradient} border-2 ${colorScheme.border} min-w-[220px] ${selected ? 'ring-2 ring-primary' : ''}`}>
       <Handle
         type="target"
         position={Position.Top}

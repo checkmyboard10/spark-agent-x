@@ -14,6 +14,7 @@ interface FlowToolbarProps {
   onSave: () => void;
   onAutoLayout: () => void;
   agentId: string;
+  lastSaved?: Date | null;
 }
 
 export const FlowToolbar = ({
@@ -25,8 +26,18 @@ export const FlowToolbar = ({
   onSave,
   onAutoLayout,
   agentId,
+  lastSaved,
 }: FlowToolbarProps) => {
   const navigate = useNavigate();
+  
+  const formatLastSaved = () => {
+    if (!lastSaved) return '';
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - lastSaved.getTime()) / 1000);
+    if (diff < 60) return 'Salvo agora';
+    if (diff < 3600) return `Salvo há ${Math.floor(diff / 60)}min`;
+    return `Salvo há ${Math.floor(diff / 3600)}h`;
+  };
 
   return (
     <div className="border-b bg-card px-4 py-3 flex items-center justify-between gap-4">
@@ -41,13 +52,24 @@ export const FlowToolbar = ({
         
         <div className="h-8 w-px bg-border" />
         
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-1">
           <Input
             value={flowName}
             onChange={(e) => onNameChange(e.target.value)}
             className="w-64 font-semibold"
-            placeholder="Nome do fluxo"
+            placeholder="Digite o nome do fluxo..."
+            maxLength={100}
           />
+          <div className="flex items-center justify-between px-1">
+            <span className="text-[10px] text-muted-foreground">
+              {flowName.length}/100 caracteres
+            </span>
+            {lastSaved && (
+              <span className="text-[10px] text-muted-foreground">
+                {formatLastSaved()}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 

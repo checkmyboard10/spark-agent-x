@@ -20,6 +20,30 @@ interface FlowData {
   is_active: boolean;
 }
 
+// Generate unique flow name
+const generateUniqueName = async (agentId: string): Promise<string> => {
+  const { data } = await supabase
+    .from('agent_flows')
+    .select('name')
+    .eq('agent_id', agentId)
+    .order('created_at', { ascending: false });
+  
+  if (!data || data.length === 0) {
+    return 'Fluxo 1';
+  }
+  
+  // Find highest number
+  let maxNum = 0;
+  data.forEach(flow => {
+    const match = flow.name.match(/^Fluxo (\d+)$/);
+    if (match) {
+      maxNum = Math.max(maxNum, parseInt(match[1]));
+    }
+  });
+  
+  return `Fluxo ${maxNum + 1}`;
+};
+
 export const useFlowEditor = (agentId: string, flowId?: string) => {
   const navigate = useNavigate();
   const [nodes, setNodes] = useState<Node[]>([]);
@@ -29,10 +53,15 @@ export const useFlowEditor = (agentId: string, flowId?: string) => {
   const [isActive, setIsActive] = useState(true);
   const [isSaving, setSaving] = useState(false);
   const [isLoading, setLoading] = useState(true);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   // Load flow data
   const loadFlow = useCallback(async () => {
     if (!flowId) {
+      // Generate unique name for new flow
+      const uniqueName = await generateUniqueName(agentId);
+      setFlowName(uniqueName);
+      
       // Initialize with a start node
       setNodes([{
         id: 'start-node',
@@ -94,8 +123,23 @@ export const useFlowEditor = (agentId: string, flowId?: string) => {
           .eq('id', flowId);
 
         if (error) throw error;
-        toast.success('Fluxo atualizado com sucesso!');
+        setLastSaved(new Date());
+        toast.success('✓ Fluxo salvo');
       } else {
+        // Check for duplicate name before creating
+        const { data: existing } = await supabase
+          .from('agent_flows')
+          .select('id')
+          .eq('agent_id', agentId)
+          .eq('name', flowName)
+          .maybeSingle();
+        
+        if (existing) {
+          toast.error('Já existe um fluxo com este nome. Escolha outro nome.');
+          setSaving(false);
+          return;
+        }
+        
         // Create new flow
         const { data, error } = await supabase
           .from('agent_flows')
@@ -104,12 +148,13 @@ export const useFlowEditor = (agentId: string, flowId?: string) => {
           .single();
 
         if (error) throw error;
-        toast.success('Fluxo criado com sucesso!');
+        setLastSaved(new Date());
+        toast.success('✓ Fluxo criado');
         navigate(`/flows/${agentId}/${data.id}`);
       }
     } catch (error: any) {
       console.error('Error saving flow:', error);
-      toast.error('Erro ao salvar fluxo: ' + error.message);
+      toast.error('Erro ao salvar: ' + (error.message || 'Tente novamente'));
     } finally {
       setSaving(false);
     }
@@ -222,6 +267,7 @@ export const useFlowEditor = (agentId: string, flowId?: string) => {
     isActive,
     isSaving,
     isLoading,
+    lastSaved,
     
     // Setters
     setNodes,

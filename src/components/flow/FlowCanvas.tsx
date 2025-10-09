@@ -28,6 +28,7 @@ interface FlowCanvasProps {
   onAutoLayout: () => void;
   showGrid?: boolean;
   snapToGrid?: boolean;
+  setNodes?: (nodes: Node[] | ((nodes: Node[]) => Node[])) => void;
 }
 
 export const FlowCanvas = ({
@@ -40,11 +41,25 @@ export const FlowCanvas = ({
   onAutoLayout,
   showGrid = true,
   snapToGrid = false,
+  setNodes,
 }: FlowCanvasProps) => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useRef<any>(null);
   const [clickPosition, setClickPosition] = useState<{ x: number; y: number } | null>(null);
   const { fitView, zoomIn, zoomOut } = useReactFlow();
+
+  const handleChangeColor = useCallback((nodeId: string, color: string) => {
+    if (setNodes) {
+      setNodes((nds) =>
+        nds.map((node) =>
+          node.id === nodeId
+            ? { ...node, data: { ...node.data, color } }
+            : node
+        )
+      );
+      toast.success('Cor alterada');
+    }
+  }, [setNodes]);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();

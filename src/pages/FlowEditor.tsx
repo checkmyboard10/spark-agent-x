@@ -39,6 +39,7 @@ const FlowEditor = () => {
     isActive,
     isSaving,
     isLoading,
+    lastSaved,
     setNodes,
     setFlowName,
     setIsActive,
@@ -126,6 +127,7 @@ const FlowEditor = () => {
         flowName={flowName}
         isActive={isActive}
         isSaving={isSaving}
+        lastSaved={lastSaved}
         onNameChange={setFlowName}
         onActiveToggle={setIsActive}
         onSave={saveFlow}
@@ -189,6 +191,7 @@ const FlowEditor = () => {
             onAutoLayout={handleAutoLayout}
             showGrid={showGrid}
             snapToGrid={snapToGrid}
+            setNodes={setNodes}
           />
 
           {/* Status Bar */}

@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { getColorScheme } from '@/lib/flowColorSchemes';
 
 interface AgentData {
   label: string;
@@ -17,10 +18,12 @@ interface AgentData {
   maxTurns?: number;
   handoffCondition?: string;
   contextVariables?: string[];
+  color?: string;
 }
 
 const AgentNode = ({ data, selected }: NodeProps) => {
   const agentData = data as unknown as AgentData;
+  const colorScheme = getColorScheme(agentData.color);
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<AgentData>(agentData);
 

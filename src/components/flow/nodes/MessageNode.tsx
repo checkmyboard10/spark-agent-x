@@ -6,8 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { MessageNodeData } from '@/types/flow';
+import { getColorScheme } from '@/lib/flowColorSchemes';
 
-const MessageNode = ({ data, id }: NodeProps) => {
+const MessageNode = ({ data, id, selected }: NodeProps) => {
+  const nodeData = data as unknown as MessageNodeData;
+  const colorScheme = getColorScheme(nodeData.color);
   const [isEditing, setIsEditing] = useState(false);
   const [message, setMessage] = useState((data.message as string) || '');
   const [nodeLabel, setNodeLabel] = useState((data.label as string) || 'Mensagem');
@@ -20,33 +24,33 @@ const MessageNode = ({ data, id }: NodeProps) => {
 
   return (
     <>
-      <div className="px-6 py-4 shadow-lg rounded-lg bg-card border-2 border-primary min-w-[200px] max-w-[300px] hover:shadow-xl transition-shadow">
+      <div className={`px-6 py-4 shadow-lg rounded-lg bg-gradient-to-br ${colorScheme.gradient} border-2 ${colorScheme.border} min-w-[200px] max-w-[300px] hover:shadow-xl transition-shadow ${selected ? 'ring-2 ring-primary' : ''}`}>
         <Handle
           type="target"
           position={Position.Top}
-          className="w-3 h-3 !bg-primary border-2 border-background"
+          className="w-3 h-3 !bg-blue-300 border-2 border-white"
         />
         
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-8 h-8 bg-primary/10 rounded-full">
-              <MessageSquare className="w-4 h-4 text-primary" />
+            <div className="flex items-center justify-center w-8 h-8 bg-white/20 rounded-full">
+              <MessageSquare className="w-4 h-4 text-white" />
             </div>
-            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <div className="text-xs font-medium text-white/80 uppercase tracking-wide">
               Mensagem
             </div>
           </div>
           <button 
             onClick={() => setIsEditing(true)}
-            className="p-1 hover:bg-accent rounded transition-colors"
+            className="p-1 hover:bg-white/20 rounded transition-colors"
           >
-            <Settings className="w-4 h-4 text-muted-foreground" />
+            <Settings className="w-4 h-4 text-white/80" />
           </button>
         </div>
 
-        <div className="text-sm font-semibold text-foreground mb-1">{String(nodeLabel)}</div>
+        <div className="text-sm font-bold text-white mb-1">{String(nodeLabel)}</div>
         {message && (
-          <div className="text-xs text-muted-foreground line-clamp-2 mt-2 p-2 bg-muted/50 rounded">
+          <div className="text-xs text-white/90 line-clamp-2 mt-2 p-2 bg-black/20 rounded">
             {String(message)}
           </div>
         )}
@@ -54,7 +58,7 @@ const MessageNode = ({ data, id }: NodeProps) => {
         <Handle
           type="source"
           position={Position.Bottom}
-          className="w-3 h-3 !bg-primary border-2 border-background"
+          className="w-3 h-3 !bg-blue-300 border-2 border-white"
         />
       </div>
 

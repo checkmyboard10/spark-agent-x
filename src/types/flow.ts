@@ -19,6 +19,7 @@ export interface MessageNodeData {
   type: 'text' | 'template' | 'media';
   templateId?: string;
   mediaUrl?: string;
+  color?: string;
 }
 
 export interface ConditionNodeData {
@@ -26,12 +27,14 @@ export interface ConditionNodeData {
   variable: string;
   operator: ConditionOperator;
   value: string | number;
+  color?: string;
 }
 
 export interface WaitNodeData {
   label: string;
   duration: number;
   unit: 'seconds' | 'minutes' | 'hours' | 'days';
+  color?: string;
 }
 
 export interface HttpNodeData {
@@ -42,6 +45,7 @@ export interface HttpNodeData {
   body?: string;
   timeout: number;
   saveResponseTo: string;
+  color?: string;
 }
 
 export interface AiNodeData {
@@ -51,6 +55,7 @@ export interface AiNodeData {
   temperature: number;
   maxTokens: number;
   saveResponseTo: string;
+  color?: string;
 }
 
 export interface VariableNodeData {
@@ -58,6 +63,7 @@ export interface VariableNodeData {
   variableName: string;
   operation: 'set' | 'increment' | 'append' | 'clear';
   value: string;
+  color?: string;
 }
 
 export interface StartNodeData {
@@ -82,6 +88,7 @@ export interface AgentNodeData {
   maxTurns?: number;
   handoffCondition?: string;
   contextVariables?: string[];
+  color?: string;
 }
 
 // Variável do fluxo

@@ -2,9 +2,11 @@ import { memo } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Globe } from 'lucide-react';
 import { HttpNodeData } from '@/types/flow';
+import { getColorScheme } from '@/lib/flowColorSchemes';
 
 const HttpNode = ({ data, selected }: NodeProps) => {
   const nodeData = data as unknown as HttpNodeData;
+  const colorScheme = getColorScheme(nodeData.color);
   
   const methodColors = {
     GET: 'bg-blue-500',
@@ -15,7 +17,7 @@ const HttpNode = ({ data, selected }: NodeProps) => {
   };
   
   return (
-    <div className={`px-6 py-4 shadow-lg rounded-lg bg-gradient-to-br from-purple-500 to-violet-600 border-2 border-purple-400 min-w-[220px] ${selected ? 'ring-2 ring-primary' : ''}`}>
+    <div className={`px-6 py-4 shadow-lg rounded-lg bg-gradient-to-br ${colorScheme.gradient} border-2 ${colorScheme.border} min-w-[220px] ${selected ? 'ring-2 ring-primary' : ''}`}>
       <Handle
         type="target"
         position={Position.Top}

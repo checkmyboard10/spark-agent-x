@@ -2,9 +2,11 @@ import { memo } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { GitBranch } from 'lucide-react';
 import { ConditionNodeData } from '@/types/flow';
+import { getColorScheme } from '@/lib/flowColorSchemes';
 
 const ConditionNode = ({ data, selected }: NodeProps) => {
   const nodeData = data as unknown as ConditionNodeData;
+  const colorScheme = getColorScheme(nodeData.color);
   
   return (
     <div className={`relative ${selected ? 'ring-2 ring-primary' : ''}`}>
@@ -14,7 +16,7 @@ const ConditionNode = ({ data, selected }: NodeProps) => {
         className="w-3 h-3 !bg-blue-300 border-2 border-white"
       />
       
-      <div className="px-6 py-4 shadow-lg rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 border-2 border-blue-400 min-w-[220px] transform rotate-45">
+      <div className={`px-6 py-4 shadow-lg rounded-lg bg-gradient-to-br ${colorScheme.gradient} border-2 ${colorScheme.border} min-w-[220px] transform rotate-45`}>
         <div className="transform -rotate-45">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-8 h-8 bg-white/20 rounded-full">

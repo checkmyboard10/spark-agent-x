@@ -19,6 +19,7 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
 } from '@/components/ui/context-menu';
+import { nodeColorSchemes } from '@/lib/flowColorSchemes';
 
 interface FlowContextMenuProps {
   nodeId: string;
@@ -35,15 +36,6 @@ interface FlowContextMenuProps {
   hasClipboard: boolean;
   children: React.ReactNode;
 }
-
-const nodeColors = [
-  { name: 'Verde', value: 'bg-green-100 border-green-500' },
-  { name: 'Azul', value: 'bg-blue-100 border-blue-500' },
-  { name: 'Roxo', value: 'bg-purple-100 border-purple-500' },
-  { name: 'Laranja', value: 'bg-orange-100 border-orange-500' },
-  { name: 'Rosa', value: 'bg-pink-100 border-pink-500' },
-  { name: 'Padrão', value: '' },
-];
 
 const nodeTypesToAdd = [
   { type: 'message', label: 'Mensagem', icon: '💬' },
@@ -111,12 +103,12 @@ export const FlowContextMenu = ({
             Alterar Cor
           </ContextMenuSubTrigger>
           <ContextMenuSubContent>
-            {nodeColors.map((color) => (
+            {nodeColorSchemes.map((color) => (
               <ContextMenuItem
-                key={color.name}
+                key={color.value}
                 onClick={() => onChangeColor(color.value)}
               >
-                <div className={`w-4 h-4 rounded mr-2 border ${color.value || 'bg-card'}`} />
+                <div className={`w-4 h-4 rounded mr-2 bg-gradient-to-br ${color.gradient}`} />
                 {color.name}
               </ContextMenuItem>
             ))}

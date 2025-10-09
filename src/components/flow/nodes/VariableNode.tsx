@@ -2,9 +2,11 @@ import { memo } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Variable } from 'lucide-react';
 import { VariableNodeData } from '@/types/flow';
+import { getColorScheme } from '@/lib/flowColorSchemes';
 
 const VariableNode = ({ data, selected }: NodeProps) => {
   const nodeData = data as unknown as VariableNodeData;
+  const colorScheme = getColorScheme(nodeData.color);
   
   const operationLabels = {
     set: 'Definir',
@@ -14,7 +16,7 @@ const VariableNode = ({ data, selected }: NodeProps) => {
   };
   
   return (
-    <div className={`px-6 py-4 shadow-lg rounded-lg bg-gradient-to-br from-teal-500 to-cyan-600 border-2 border-teal-400 min-w-[200px] ${selected ? 'ring-2 ring-primary' : ''}`}>
+    <div className={`px-6 py-4 shadow-lg rounded-lg bg-gradient-to-br ${colorScheme.gradient} border-2 ${colorScheme.border} min-w-[200px] ${selected ? 'ring-2 ring-primary' : ''}`}>
       <Handle
         type="target"
         position={Position.Top}
