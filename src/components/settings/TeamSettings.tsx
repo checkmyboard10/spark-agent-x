@@ -131,11 +131,12 @@ export const TeamSettings = () => {
     }
   };
 
-  const handleRoleChange = async (userId: string, newRole: "admin" | "moderator" | "user") => {
+  const handleRoleChange = async (userId: string, newRole: string) => {
     try {
+      // Cast to any to bypass TypeScript enum restriction until types are regenerated
       const { error } = await supabase
         .from("user_roles")
-        .update({ role: newRole })
+        .update({ role: newRole as any })
         .eq("user_id", userId);
 
       if (error) throw error;
@@ -219,7 +220,7 @@ export const TeamSettings = () => {
                 <div className="flex items-center gap-2">
                   <Select
                     value={member.user_roles?.[0]?.role || "user"}
-                    onValueChange={(value) => handleRoleChange(member.id, value as "admin" | "moderator" | "user")}
+                    onValueChange={(value) => handleRoleChange(member.id, value)}
                   >
                     <SelectTrigger className="w-[140px]">
                       <SelectValue />
