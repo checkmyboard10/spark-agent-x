@@ -326,6 +326,160 @@ export type Database = {
           },
         ]
       }
+      conversations: {
+        Row: {
+          agent_id: string
+          client_id: string
+          contact_name: string
+          contact_phone: string
+          created_at: string
+          id: string
+          last_message_at: string
+          metadata: Json | null
+          status: Database["public"]["Enums"]["conversation_status"]
+          updated_at: string
+        }
+        Insert: {
+          agent_id: string
+          client_id: string
+          contact_name: string
+          contact_phone: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          metadata?: Json | null
+          status?: Database["public"]["Enums"]["conversation_status"]
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string
+          client_id?: string
+          contact_name?: string
+          contact_phone?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          metadata?: Json | null
+          status?: Database["public"]["Enums"]["conversation_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      google_integrations: {
+        Row: {
+          access_token: string
+          calendar_id: string
+          client_id: string
+          connected_at: string
+          created_at: string
+          id: string
+          last_sync: string | null
+          refresh_token: string
+          status: Database["public"]["Enums"]["integration_status"]
+          token_expires_at: string
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          calendar_id: string
+          client_id: string
+          connected_at?: string
+          created_at?: string
+          id?: string
+          last_sync?: string | null
+          refresh_token: string
+          status?: Database["public"]["Enums"]["integration_status"]
+          token_expires_at: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          calendar_id?: string
+          client_id?: string
+          connected_at?: string
+          created_at?: string
+          id?: string
+          last_sync?: string | null
+          refresh_token?: string
+          status?: Database["public"]["Enums"]["integration_status"]
+          token_expires_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "google_integrations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          delivered_at: string | null
+          direction: Database["public"]["Enums"]["message_direction"]
+          id: string
+          message_type: Database["public"]["Enums"]["message_type"]
+          metadata: Json | null
+          read_at: string | null
+          sent_at: string
+          status: Database["public"]["Enums"]["message_status"]
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          delivered_at?: string | null
+          direction: Database["public"]["Enums"]["message_direction"]
+          id?: string
+          message_type?: Database["public"]["Enums"]["message_type"]
+          metadata?: Json | null
+          read_at?: string | null
+          sent_at?: string
+          status?: Database["public"]["Enums"]["message_status"]
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          delivered_at?: string | null
+          direction?: Database["public"]["Enums"]["message_direction"]
+          id?: string
+          message_type?: Database["public"]["Enums"]["message_type"]
+          metadata?: Json | null
+          read_at?: string | null
+          sent_at?: string
+          status?: Database["public"]["Enums"]["message_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           agency_id: string | null
@@ -382,6 +536,153 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_logs: {
+        Row: {
+          attempt_number: number
+          completed_at: string | null
+          error_message: string | null
+          event_type: string
+          id: string
+          payload: Json
+          response_body: string | null
+          response_status: number | null
+          triggered_at: string
+          webhook_id: string
+        }
+        Insert: {
+          attempt_number?: number
+          completed_at?: string | null
+          error_message?: string | null
+          event_type: string
+          id?: string
+          payload: Json
+          response_body?: string | null
+          response_status?: number | null
+          triggered_at?: string
+          webhook_id: string
+        }
+        Update: {
+          attempt_number?: number
+          completed_at?: string | null
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json
+          response_body?: string | null
+          response_status?: number | null
+          triggered_at?: string
+          webhook_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_logs_webhook_id_fkey"
+            columns: ["webhook_id"]
+            isOneToOne: false
+            referencedRelation: "webhooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhooks: {
+        Row: {
+          active: boolean
+          client_id: string
+          created_at: string
+          events: string[]
+          id: string
+          last_status: Database["public"]["Enums"]["webhook_status"] | null
+          last_triggered_at: string | null
+          name: string
+          retry_policy: Json | null
+          secret: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          client_id: string
+          created_at?: string
+          events?: string[]
+          id?: string
+          last_status?: Database["public"]["Enums"]["webhook_status"] | null
+          last_triggered_at?: string | null
+          name: string
+          retry_policy?: Json | null
+          secret: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          client_id?: string
+          created_at?: string
+          events?: string[]
+          id?: string
+          last_status?: Database["public"]["Enums"]["webhook_status"] | null
+          last_triggered_at?: string | null
+          name?: string
+          retry_policy?: Json | null
+          secret?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhooks_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_connections: {
+        Row: {
+          client_id: string
+          connected_at: string | null
+          created_at: string
+          id: string
+          last_seen: string | null
+          metadata: Json | null
+          phone_number: string | null
+          qr_code: string | null
+          status: Database["public"]["Enums"]["whatsapp_status"]
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          connected_at?: string | null
+          created_at?: string
+          id?: string
+          last_seen?: string | null
+          metadata?: Json | null
+          phone_number?: string | null
+          qr_code?: string | null
+          status?: Database["public"]["Enums"]["whatsapp_status"]
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          connected_at?: string | null
+          created_at?: string
+          id?: string
+          last_seen?: string | null
+          metadata?: Json | null
+          phone_number?: string | null
+          qr_code?: string | null
+          status?: Database["public"]["Enums"]["whatsapp_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_connections_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -397,6 +698,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      conversation_status: "active" | "waiting" | "closed"
+      integration_status: "active" | "expired" | "revoked"
+      message_direction: "incoming" | "outgoing"
+      message_status: "pending" | "sent" | "delivered" | "read" | "failed"
+      message_type: "text" | "image" | "audio" | "document"
+      webhook_status: "success" | "failed"
+      whatsapp_status: "disconnected" | "connecting" | "connected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -525,6 +833,13 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      conversation_status: ["active", "waiting", "closed"],
+      integration_status: ["active", "expired", "revoked"],
+      message_direction: ["incoming", "outgoing"],
+      message_status: ["pending", "sent", "delivered", "read", "failed"],
+      message_type: ["text", "image", "audio", "document"],
+      webhook_status: ["success", "failed"],
+      whatsapp_status: ["disconnected", "connecting", "connected"],
     },
   },
 } as const
