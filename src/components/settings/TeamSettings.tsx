@@ -2,12 +2,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { UserPlus, Mail, Shield, Trash2 } from "lucide-react";
+import { UserPlus, Mail, Trash2, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { InviteUserDialog } from "./InviteUserDialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { usePermissions } from "@/hooks/usePermissions";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const TeamSettings = () => {
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
@@ -15,6 +18,7 @@ export const TeamSettings = () => {
   const [deleteTarget, setDeleteTarget] = useState<{ type: 'member' | 'invite', id: string } | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { canManageTeam, isLoading: isLoadingPermissions } = usePermissions();
 
   const { data: teamMembers } = useQuery({
     queryKey: ['team-members'],
@@ -127,6 +131,33 @@ export const TeamSettings = () => {
     }
   };
 
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    try {
+      const { error } = await supabase
+        .from("user_roles")
+        .update({ role: newRole })
+        .eq("user_id", userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Role atualizado",
+        description: "O papel do usuário foi atualizado com sucesso.",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["team-members"] });
+    } catch (error: any) {
+      console.error("Error updating role:", error);
+      toast({
+        title: "Erro ao atualizar role",
+        description: error.message === 'Não é possível remover ou rebaixar o último administrador da agency' 
+          ? error.message 
+          : "Ocorreu um erro ao atualizar o papel. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getRoleBadge = (roles: any[]) => {
     if (!roles || roles.length === 0) return <Badge variant="outline">User</Badge>;
     
@@ -139,6 +170,23 @@ export const TeamSettings = () => {
 
     return <Badge variant={variants[role] || "outline"}>{role}</Badge>;
   };
+
+  if (isLoadingPermissions) {
+    return <div>Carregando...</div>;
+  }
+
+  if (!canManageTeam) {
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Acesso Restrito</AlertTitle>
+        <AlertDescription>
+          Apenas administradores podem gerenciar a equipe.
+          Entre em contato com um administrador.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -169,7 +217,19 @@ export const TeamSettings = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {getRoleBadge(member.user_roles)}
+                  <Select
+                    value={member.user_roles?.[0]?.role || "user"}
+                    onValueChange={(value) => handleRoleChange(member.id, value)}
+                  >
+                    <SelectTrigger className="w-[140px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="moderator">Moderador</SelectItem>
+                      <SelectItem value="user">Usuário</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <Button 
                     variant="ghost" 
                     size="icon"

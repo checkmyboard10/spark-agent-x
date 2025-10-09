@@ -31,7 +31,7 @@ export const usePermissions = () => {
     enabled: !!session?.user?.id,
   });
 
-  const role = userRole || "user";
+  const role = (userRole as "admin" | "moderator" | "user") || "user";
   const isAdmin = role === "admin";
   const isModerator = role === "moderator";
   const isUser = role === "user";

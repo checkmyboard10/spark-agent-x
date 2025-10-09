@@ -5,14 +5,33 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Check, AlertCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export const DomainSettings = () => {
   const { toast } = useToast();
+  const { canManageSettings, isLoading } = usePermissions();
   const [subdomain, setSubdomain] = useState("");
   const [customDomain, setCustomDomain] = useState("");
   const [checking, setChecking] = useState(false);
   const [subdomainAvailable, setSubdomainAvailable] = useState<boolean | null>(null);
+
+  if (isLoading) {
+    return <div>Carregando...</div>;
+  }
+
+  if (!canManageSettings) {
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Acesso Restrito</AlertTitle>
+        <AlertDescription>
+          Apenas administradores e moderadores podem configurar domínios personalizados.
+          Entre em contato com um administrador.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   const handleCheckSubdomain = async () => {
     if (!subdomain || subdomain.length < 3) {

@@ -2,7 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
-import { Bell, Mail, Webhook } from "lucide-react";
+import { Bell, Mail, Webhook, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export const NotificationsSettings = () => {
   const { canManageSettings, isLoading } = usePermissions();

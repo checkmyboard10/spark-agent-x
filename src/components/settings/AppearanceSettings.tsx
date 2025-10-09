@@ -6,15 +6,35 @@ import { useAgencyTheme } from "@/hooks/useAgencyTheme";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
-import { Upload } from "lucide-react";
+import { Upload, AlertCircle } from "lucide-react";
 import { AgencyLogo } from "@/components/AgencyLogo";
 import { ColorPicker } from "@/components/ui/color-picker";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export const AppearanceSettings = () => {
   const { theme, logoUrl } = useAgencyTheme();
+  const { canManageSettings, isLoading } = usePermissions();
   const [primaryColor, setPrimaryColor] = useState(theme?.primary_color || "160 84% 39%");
   const [secondaryColor, setSecondaryColor] = useState(theme?.secondary_color || "186 100% 46%");
   const [uploading, setUploading] = useState(false);
+
+  if (isLoading) {
+    return <div>Carregando...</div>;
+  }
+
+  if (!canManageSettings) {
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Acesso Restrito</AlertTitle>
+        <AlertDescription>
+          Você não tem permissão para gerenciar as configurações de aparência.
+          Entre em contato com um administrador.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
