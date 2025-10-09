@@ -17,35 +17,85 @@ export type Database = {
       agencies: {
         Row: {
           created_at: string
+          custom_domain: string | null
           id: string
           logo_url: string | null
           name: string
           primary_color: string | null
           secondary_color: string | null
+          settings: Json | null
           subdomain: string
           updated_at: string
         }
         Insert: {
           created_at?: string
+          custom_domain?: string | null
           id?: string
           logo_url?: string | null
           name: string
           primary_color?: string | null
           secondary_color?: string | null
+          settings?: Json | null
           subdomain: string
           updated_at?: string
         }
         Update: {
           created_at?: string
+          custom_domain?: string | null
           id?: string
           logo_url?: string | null
           name?: string
           primary_color?: string | null
           secondary_color?: string | null
+          settings?: Json | null
           subdomain?: string
           updated_at?: string
         }
         Relationships: []
+      }
+      agency_stats: {
+        Row: {
+          active_conversations: number | null
+          agency_id: string
+          campaigns_sent: number | null
+          created_at: string
+          date: string
+          id: string
+          total_messages_received: number | null
+          total_messages_sent: number | null
+          webhook_calls: number | null
+        }
+        Insert: {
+          active_conversations?: number | null
+          agency_id: string
+          campaigns_sent?: number | null
+          created_at?: string
+          date: string
+          id?: string
+          total_messages_received?: number | null
+          total_messages_sent?: number | null
+          webhook_calls?: number | null
+        }
+        Update: {
+          active_conversations?: number | null
+          agency_id?: string
+          campaigns_sent?: number | null
+          created_at?: string
+          date?: string
+          id?: string
+          total_messages_received?: number | null
+          total_messages_sent?: number | null
+          webhook_calls?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_stats_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       agents: {
         Row: {
@@ -426,6 +476,57 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: true
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invites: {
+        Row: {
+          accepted_at: string | null
+          agency_id: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          agency_id: string
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          token?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          agency_id?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invites_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invites_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

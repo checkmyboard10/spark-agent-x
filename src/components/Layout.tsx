@@ -12,9 +12,12 @@ import {
   Menu,
   X,
   Send,
-  Plug
+  Plug,
+  Settings
 } from "lucide-react";
 import { toast } from "sonner";
+import { AgencyLogo } from "@/components/AgencyLogo";
+import { useAgencyTheme } from "@/hooks/useAgencyTheme";
 
 interface LayoutProps {
   children: ReactNode;
@@ -26,6 +29,7 @@ const navItems = [
   { path: "/agents", label: "Agentes IA", icon: Bot },
   { path: "/campaigns", label: "Campanhas", icon: Send },
   { path: "/integrations", label: "Integrações", icon: Plug },
+  { path: "/settings", label: "Configurações", icon: Settings },
 ];
 
 export default function Layout({ children }: LayoutProps) {
@@ -34,6 +38,7 @@ export default function Layout({ children }: LayoutProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { settings } = useAgencyTheme();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -90,10 +95,13 @@ export default function Layout({ children }: LayoutProps) {
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
-        <div className="p-6 border-b border-border flex items-center justify-between">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            AI WhatsApp
-          </h1>
+        <div className="p-6 border-b border-border flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <AgencyLogo size="md" />
+            <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              {settings?.company_name || "AI WhatsApp"}
+            </h1>
+          </div>
           <Button
             variant="ghost"
             size="icon"
@@ -153,8 +161,9 @@ export default function Layout({ children }: LayoutProps) {
           >
             <Menu className="h-5 w-5" />
           </Button>
+          <AgencyLogo size="sm" />
           <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            AI WhatsApp
+            {settings?.company_name || "AI WhatsApp"}
           </h1>
         </header>
 
