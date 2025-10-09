@@ -1,7 +1,7 @@
 import { Node, Edge } from '@xyflow/react';
 
 // Tipos de nós
-export type NodeType = 'start' | 'end' | 'message' | 'condition' | 'wait' | 'http' | 'ai' | 'variable';
+export type NodeType = 'start' | 'end' | 'message' | 'condition' | 'wait' | 'http' | 'ai' | 'variable' | 'agent';
 
 // Operadores para condições
 export type ConditionOperator = '==' | '!=' | '>' | '<' | '>=' | '<=' | 'contains' | 'startsWith' | 'endsWith';
@@ -75,6 +75,15 @@ export interface EndNodeData {
   };
 }
 
+export interface AgentNodeData {
+  label: string;
+  agentId?: string;
+  agentName?: string;
+  maxTurns?: number;
+  handoffCondition?: string;
+  contextVariables?: string[];
+}
+
 // Variável do fluxo
 export interface FlowVariable {
   name: string;
@@ -94,7 +103,8 @@ export type NodeData =
   | AiNodeData 
   | VariableNodeData
   | StartNodeData
-  | EndNodeData;
+  | EndNodeData
+  | AgentNodeData;
 
 // Erro/Warning de validação
 export interface ValidationIssue {

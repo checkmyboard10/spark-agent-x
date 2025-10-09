@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { FlowToolbar } from '@/components/flow/FlowToolbar';
 import { FlowSidebar } from '@/components/flow/FlowSidebar';
 import { FlowCanvasWrapper } from '@/components/flow/FlowCanvas';
@@ -7,16 +7,26 @@ import { FlowVariablesPanel } from '@/components/flow/FlowVariablesPanel';
 import { FlowTestPanel } from '@/components/flow/FlowTestPanel';
 import { FlowExecutionsList } from '@/components/flow/FlowExecutionsList';
 import { FlowExecutionViewer } from '@/components/flow/FlowExecutionViewer';
+import { FlowSelectionToolbar } from '@/components/flow/FlowSelectionToolbar';
+import { FlowQuickActions } from '@/components/flow/FlowQuickActions';
+import { FlowSearchPanel } from '@/components/flow/FlowSearchPanel';
+import { FlowStatsCard } from '@/components/flow/FlowStatsCard';
 import { useFlowEditor } from '@/hooks/useFlowEditor';
+import { useFlowSelection } from '@/hooks/useFlowSelection';
 import { autoLayout, validateFlow, getNodeStats } from '@/lib/flowHelpers';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, CheckCircle, Info } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { AlertCircle, CheckCircle, Info, Search } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const FlowEditor = () => {
   const { agentId, flowId } = useParams<{ agentId: string; flowId?: string }>();
   const [selectedExecutionId, setSelectedExecutionId] = useState<string | null>(null);
+  const [showSearch, setShowSearch] = useState(false);
+  const [showGrid, setShowGrid] = useState(true);
+  const [snapToGrid, setSnapToGrid] = useState(false);
+  const navigate = useNavigate();
   
   if (!agentId) {
     return <div>Agent ID não fornecido</div>;
@@ -41,7 +51,10 @@ const FlowEditor = () => {
     copySelectedNodes,
     pasteNodes,
     duplicateSelectedNodes,
+    deleteSelectedNodes,
   } = useFlowEditor(agentId, flowId);
+
+  const selection = useFlowSelection({ nodes, setNodes });
 
   useEffect(() => {
     loadFlow();
@@ -66,15 +79,31 @@ const FlowEditor = () => {
         e.preventDefault();
         saveFlow();
       }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        e.preventDefault();
+        setNodes(nodes.map(n => ({ ...n, selected: true })));
+      }
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        deleteSelectedNodes();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        setShowSearch(true);
+      }
     };
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [copySelectedNodes, pasteNodes, duplicateSelectedNodes, saveFlow]);
+  }, [copySelectedNodes, pasteNodes, duplicateSelectedNodes, saveFlow, deleteSelectedNodes, nodes, setNodes]);
 
   const handleAutoLayout = () => {
     const layoutedNodes = autoLayout(nodes, edges);
     setNodes(layoutedNodes);
+  };
+
+  const handleFocusNode = (nodeId: string) => {
+    setNodes(nodes.map(n => ({ ...n, selected: n.id === nodeId })));
   };
 
   const validation = validateFlow(nodes, edges);
@@ -108,6 +137,48 @@ const FlowEditor = () => {
         <FlowSidebar onAddNode={addNode} />
         
         <div className="flex-1 flex flex-col relative">
+          {/* Selection Toolbar */}
+          <FlowSelectionToolbar
+            selectedCount={selection.selectedCount}
+            onAlignLeft={selection.alignLeft}
+            onAlignCenter={selection.alignCenter}
+            onAlignRight={selection.alignRight}
+            onAlignTop={selection.alignTop}
+            onAlignMiddle={selection.alignMiddle}
+            onAlignBottom={selection.alignBottom}
+            onDistributeHorizontal={selection.distributeHorizontal}
+            onDistributeVertical={selection.distributeVertical}
+            onCopy={copySelectedNodes}
+            onDelete={deleteSelectedNodes}
+          />
+
+          {/* Quick Actions */}
+          <FlowQuickActions
+            showGrid={showGrid}
+            snapToGrid={snapToGrid}
+            onToggleGrid={() => setShowGrid(!showGrid)}
+            onToggleSnap={() => setSnapToGrid(!snapToGrid)}
+            onExport={() => {}}
+            onSave={saveFlow}
+            isSaving={isSaving}
+          />
+
+          {/* Search Panel */}
+          {showSearch && (
+            <div className="absolute top-20 left-4 z-20">
+              <FlowSearchPanel
+                nodes={nodes}
+                onFocusNode={handleFocusNode}
+                onClose={() => setShowSearch(false)}
+              />
+            </div>
+          )}
+
+          {/* Stats Card */}
+          <div className="absolute bottom-20 left-4 z-10">
+            <FlowStatsCard nodes={nodes} edges={edges} />
+          </div>
+
           <FlowCanvasWrapper
             nodes={nodes}
             edges={edges}
@@ -115,6 +186,9 @@ const FlowEditor = () => {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onAddNode={addNode}
+            onAutoLayout={handleAutoLayout}
+            showGrid={showGrid}
+            snapToGrid={snapToGrid}
           />
 
           {/* Status Bar */}
@@ -169,7 +243,14 @@ const FlowEditor = () => {
           )}
           
           {/* Variables Panel */}
-          <div className="absolute top-4 right-4 z-10">
+          <div className="absolute top-4 right-4 z-10 flex gap-4">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setShowSearch(!showSearch)}
+            >
+              <Search className="h-4 w-4" />
+            </Button>
             <FlowVariablesPanel nodes={nodes} />
           </div>
 

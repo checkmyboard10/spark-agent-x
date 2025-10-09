@@ -6,6 +6,7 @@ import WaitNode from './WaitNode';
 import HttpNode from './HttpNode';
 import AiNode from './AiNode';
 import VariableNode from './VariableNode';
+import AgentNode from './AgentNode';
 
 export const nodeTypes = {
   start: StartNode,
@@ -16,6 +17,7 @@ export const nodeTypes = {
   http: HttpNode,
   ai: AiNode,
   variable: VariableNode,
+  agent: AgentNode,
 };
 
 export { 
@@ -26,5 +28,6 @@ export {
   WaitNode, 
   HttpNode, 
   AiNode, 
-  VariableNode 
+  VariableNode,
+  AgentNode,
 };
