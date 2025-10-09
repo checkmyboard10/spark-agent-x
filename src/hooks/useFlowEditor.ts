@@ -3,6 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Node, Edge, addEdge, Connection, applyNodeChanges, applyEdgeChanges, NodeChange, EdgeChange } from '@xyflow/react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { 
+  copyNodesToClipboard, 
+  pasteNodesFromClipboard, 
+  generateNewIds, 
+  hasClipboardData 
+} from '@/lib/flowClipboard';
 
 interface FlowData {
   id?: string;
@@ -145,6 +151,68 @@ export const useFlowEditor = (agentId: string, flowId?: string) => {
     }));
   }, [nodes]);
 
+  // Copy selected nodes
+  const copySelectedNodes = useCallback(() => {
+    const selectedNodes = nodes.filter(n => n.selected);
+    const selectedEdges = edges.filter(e => 
+      selectedNodes.some(n => n.id === e.source || n.id === e.target)
+    );
+    
+    if (selectedNodes.length === 0) {
+      toast.error('Nenhum nó selecionado');
+      return;
+    }
+    
+    copyNodesToClipboard(selectedNodes, selectedEdges);
+    toast.success(`${selectedNodes.length} nó(s) copiado(s)`);
+  }, [nodes, edges]);
+
+  // Paste nodes from clipboard
+  const pasteNodes = useCallback(() => {
+    const clipboardData = pasteNodesFromClipboard();
+    
+    if (!clipboardData) {
+      toast.error('Nada para colar');
+      return;
+    }
+    
+    const newData = generateNewIds(clipboardData);
+    
+    // Deselect all current nodes
+    setNodes(nodes => nodes.map(n => ({ ...n, selected: false })));
+    
+    // Add new nodes and edges
+    setNodes(nodes => [...nodes, ...newData.nodes]);
+    setEdges(edges => [...edges, ...newData.edges]);
+    
+    toast.success(`${newData.nodes.length} nó(s) colado(s)`);
+  }, []);
+
+  // Duplicate selected nodes
+  const duplicateSelectedNodes = useCallback(() => {
+    const selectedNodes = nodes.filter(n => n.selected);
+    const selectedEdges = edges.filter(e => 
+      selectedNodes.some(n => n.id === e.source || n.id === e.target)
+    );
+    
+    if (selectedNodes.length === 0) {
+      toast.error('Nenhum nó selecionado');
+      return;
+    }
+    
+    const clipboardData = { nodes: selectedNodes, edges: selectedEdges, timestamp: Date.now() };
+    const newData = generateNewIds(clipboardData);
+    
+    // Deselect all current nodes
+    setNodes(nodes => nodes.map(n => ({ ...n, selected: false })));
+    
+    // Add duplicated nodes and edges
+    setNodes(nodes => [...nodes, ...newData.nodes]);
+    setEdges(edges => [...edges, ...newData.edges]);
+    
+    toast.success(`${newData.nodes.length} nó(s) duplicado(s)`);
+  }, [nodes, edges]);
+
   return {
     // State
     nodes,
@@ -170,5 +238,9 @@ export const useFlowEditor = (agentId: string, flowId?: string) => {
     onConnect,
     addNode,
     deleteSelectedNodes,
+    copySelectedNodes,
+    pasteNodes,
+    duplicateSelectedNodes,
+    hasClipboard: hasClipboardData(),
   };
 };

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { FlowToolbar } from '@/components/flow/FlowToolbar';
 import { FlowSidebar } from '@/components/flow/FlowSidebar';
 import { FlowCanvasWrapper } from '@/components/flow/FlowCanvas';
+import { FlowVariablesPanel } from '@/components/flow/FlowVariablesPanel';
 import { useFlowEditor } from '@/hooks/useFlowEditor';
 import { autoLayout, validateFlow, getNodeStats } from '@/lib/flowHelpers';
 import { Badge } from '@/components/ui/badge';
@@ -32,11 +33,39 @@ const FlowEditor = () => {
     onEdgesChange,
     onConnect,
     addNode,
+    copySelectedNodes,
+    pasteNodes,
+    duplicateSelectedNodes,
   } = useFlowEditor(agentId, flowId);
 
   useEffect(() => {
     loadFlow();
   }, [loadFlow]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+        e.preventDefault();
+        copySelectedNodes();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+        e.preventDefault();
+        pasteNodes();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+        e.preventDefault();
+        duplicateSelectedNodes();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        saveFlow();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [copySelectedNodes, pasteNodes, duplicateSelectedNodes, saveFlow]);
 
   const handleAutoLayout = () => {
     const layoutedNodes = autoLayout(nodes, edges);
@@ -73,7 +102,7 @@ const FlowEditor = () => {
       <div className="flex flex-1 overflow-hidden">
         <FlowSidebar onAddNode={addNode} />
         
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col relative">
           <FlowCanvasWrapper
             nodes={nodes}
             edges={edges}
@@ -122,17 +151,22 @@ const FlowEditor = () => {
               {validation.errors.map((error, i) => (
                 <Alert key={`error-${i}`} variant="destructive">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription>{error.message}</AlertDescription>
                 </Alert>
               ))}
               {validation.warnings.map((warning, i) => (
                 <Alert key={`warning-${i}`}>
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{warning}</AlertDescription>
+                  <AlertDescription>{warning.message}</AlertDescription>
                 </Alert>
               ))}
             </div>
           )}
+          
+          {/* Variables Panel */}
+          <div className="absolute top-4 right-4 z-10">
+            <FlowVariablesPanel nodes={nodes} />
+          </div>
         </div>
       </div>
     </div>

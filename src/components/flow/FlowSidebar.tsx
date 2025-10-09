@@ -1,4 +1,4 @@
-import { Play, StopCircle, MessageSquare } from 'lucide-react';
+import { Play, StopCircle, MessageSquare, GitBranch, Clock, Globe, Sparkles, Variable } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -19,18 +19,53 @@ const nodeTypes: NodeType[] = [
     description: 'Ponto de partida do fluxo',
   },
   {
-    type: 'end',
-    label: 'Fim',
-    icon: StopCircle,
-    color: 'text-red-600',
-    description: 'Finaliza o fluxo',
-  },
-  {
     type: 'message',
     label: 'Mensagem',
     icon: MessageSquare,
     color: 'text-blue-600',
     description: 'Envia uma mensagem',
+  },
+  {
+    type: 'condition',
+    label: 'Condição',
+    icon: GitBranch,
+    color: 'text-indigo-600',
+    description: 'Se/Senão - decisões no fluxo',
+  },
+  {
+    type: 'wait',
+    label: 'Esperar',
+    icon: Clock,
+    color: 'text-orange-600',
+    description: 'Pausar por tempo determinado',
+  },
+  {
+    type: 'http',
+    label: 'HTTP',
+    icon: Globe,
+    color: 'text-purple-600',
+    description: 'Chamar API externa',
+  },
+  {
+    type: 'ai',
+    label: 'IA',
+    icon: Sparkles,
+    color: 'text-pink-600',
+    description: 'Gerar resposta com IA',
+  },
+  {
+    type: 'variable',
+    label: 'Variável',
+    icon: Variable,
+    color: 'text-teal-600',
+    description: 'Definir ou modificar variável',
+  },
+  {
+    type: 'end',
+    label: 'Fim',
+    icon: StopCircle,
+    color: 'text-red-600',
+    description: 'Finaliza o fluxo',
   },
 ];
 
