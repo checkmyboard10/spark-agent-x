@@ -1,25 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { usePermissions } from "@/hooks/usePermissions";
 import { Badge } from "@/components/ui/badge";
 import { CreditCard, TrendingUp, Calendar, ExternalLink } from "lucide-react";
 
 export const BillingSettings = () => {
-  const { canManageSettings } = usePermissions();
-
-  if (!canManageSettings) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Faturamento</CardTitle>
-          <CardDescription>
-            Você não tem permissão para visualizar estas informações.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <Card>

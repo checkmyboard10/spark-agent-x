@@ -2,14 +2,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { usePermissions } from "@/hooks/usePermissions";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Check, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const DomainSettings = () => {
-  const { canManageSettings } = usePermissions();
   const { toast } = useToast();
   const [subdomain, setSubdomain] = useState("");
   const [customDomain, setCustomDomain] = useState("");
@@ -77,19 +75,6 @@ export const DomainSettings = () => {
       setChecking(false);
     }
   };
-
-  if (!canManageSettings) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Domínio</CardTitle>
-          <CardDescription>
-            Você não tem permissão para editar estas configurações.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
 
   return (
     <div className="space-y-6">

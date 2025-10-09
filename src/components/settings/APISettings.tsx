@@ -2,29 +2,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { usePermissions } from "@/hooks/usePermissions";
 import { Copy, Key, RefreshCw, ExternalLink, Code } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 
 export const APISettings = () => {
-  const { canManageSettings } = usePermissions();
   const { toast } = useToast();
   const [apiKey] = useState("sk_test_***************************");
-
-  if (!canManageSettings) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>API</CardTitle>
-          <CardDescription>
-            Você não tem permissão para acessar estas configurações.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
 
   const handleCopyKey = () => {
     navigator.clipboard.writeText(apiKey);

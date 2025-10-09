@@ -1,6 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { usePermissions } from "@/hooks/usePermissions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { UserPlus, Mail, Shield, Trash2 } from "lucide-react";
@@ -11,7 +10,6 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from "@/hooks/use-toast";
 
 export const TeamSettings = () => {
-  const { canManageTeam } = usePermissions();
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{ type: 'member' | 'invite', id: string } | null>(null);
@@ -152,12 +150,10 @@ export const TeamSettings = () => {
               Gerencie os usuários da sua agência
             </CardDescription>
           </div>
-          {canManageTeam && (
-            <Button onClick={() => setInviteDialogOpen(true)}>
-              <UserPlus className="mr-2 h-4 w-4" />
-              Convidar Usuário
-            </Button>
-          )}
+          <Button onClick={() => setInviteDialogOpen(true)}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Convidar Usuário
+          </Button>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -174,18 +170,16 @@ export const TeamSettings = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   {getRoleBadge(member.user_roles)}
-                  {canManageTeam && (
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={() => {
-                        setDeleteTarget({ type: 'member', id: member.id });
-                        setDeleteDialogOpen(true);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => {
+                      setDeleteTarget({ type: 'member', id: member.id });
+                      setDeleteDialogOpen(true);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             ))}
@@ -193,7 +187,7 @@ export const TeamSettings = () => {
         </CardContent>
       </Card>
 
-      {canManageTeam && pendingInvites && pendingInvites.length > 0 && (
+      {pendingInvites && pendingInvites.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Convites Pendentes</CardTitle>

@@ -3,7 +3,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAgencyTheme } from "@/hooks/useAgencyTheme";
-import { usePermissions } from "@/hooks/usePermissions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -13,23 +12,9 @@ import { ColorPicker } from "@/components/ui/color-picker";
 
 export const AppearanceSettings = () => {
   const { theme, logoUrl } = useAgencyTheme();
-  const { canManageSettings } = usePermissions();
   const [primaryColor, setPrimaryColor] = useState(theme?.primary_color || "160 84% 39%");
   const [secondaryColor, setSecondaryColor] = useState(theme?.secondary_color || "186 100% 46%");
   const [uploading, setUploading] = useState(false);
-
-  if (!canManageSettings) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Aparência</CardTitle>
-          <CardDescription>
-            Você não tem permissão para editar estas configurações.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

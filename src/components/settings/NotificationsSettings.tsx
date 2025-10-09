@@ -1,28 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { usePermissions } from "@/hooks/usePermissions";
 import { useState } from "react";
 import { Bell, Mail, Webhook } from "lucide-react";
 
 export const NotificationsSettings = () => {
-  const { canManageSettings } = usePermissions();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [webhookNotifications, setWebhookNotifications] = useState(false);
   const [campaignAlerts, setCampaignAlerts] = useState(true);
-
-  if (!canManageSettings) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Notificações</CardTitle>
-          <CardDescription>
-            Você não tem permissão para editar estas configurações.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
 
   return (
     <div className="space-y-6">
