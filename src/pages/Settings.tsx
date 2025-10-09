@@ -3,6 +3,9 @@ import { Palette, Users, Globe, Bell, CreditCard, Key } from "lucide-react";
 import { AppearanceSettings } from "@/components/settings/AppearanceSettings";
 import { TeamSettings } from "@/components/settings/TeamSettings";
 import { DomainSettings } from "@/components/settings/DomainSettings";
+import { NotificationsSettings } from "@/components/settings/NotificationsSettings";
+import { BillingSettings } from "@/components/settings/BillingSettings";
+import { APISettings } from "@/components/settings/APISettings";
 
 export default function Settings() {
   return (
@@ -55,21 +58,15 @@ export default function Settings() {
         </TabsContent>
 
         <TabsContent value="notifications" className="mt-6">
-          <div className="text-muted-foreground">
-            Configurações de notificações em breve...
-          </div>
+          <NotificationsSettings />
         </TabsContent>
 
         <TabsContent value="billing" className="mt-6">
-          <div className="text-muted-foreground">
-            Configurações de cobrança em breve...
-          </div>
+          <BillingSettings />
         </TabsContent>
 
         <TabsContent value="api" className="mt-6">
-          <div className="text-muted-foreground">
-            Configurações de API em breve...
-          </div>
+          <APISettings />
         </TabsContent>
       </Tabs>
     </div>

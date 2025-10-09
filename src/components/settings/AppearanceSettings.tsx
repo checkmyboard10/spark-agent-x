@@ -67,7 +67,29 @@ export const AppearanceSettings = () => {
     }
   };
 
+  const validateHSL = (color: string): boolean => {
+    // Format: "H S% L%" where H is 0-360, S and L are 0-100
+    const hslRegex = /^(\d{1,3})\s+(\d{1,3})%\s+(\d{1,3})%$/;
+    const match = color.match(hslRegex);
+    
+    if (!match) return false;
+    
+    const [, h, s, l] = match.map(Number);
+    return h >= 0 && h <= 360 && s >= 0 && s <= 100 && l >= 0 && l <= 100;
+  };
+
   const handleThemeUpdate = async () => {
+    // Validate colors before sending
+    if (!validateHSL(primaryColor)) {
+      toast.error('Cor primária inválida. Use o formato: "H S% L%" (ex: "160 84% 39%")');
+      return;
+    }
+
+    if (!validateHSL(secondaryColor)) {
+      toast.error('Cor secundária inválida. Use o formato: "H S% L%" (ex: "186 100% 46%")');
+      return;
+    }
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
