@@ -59,15 +59,17 @@ export default function ConversationFilters({
   const handleClearFilters = () => {
     onSearchChange("");
     onFiltersChange({
-      clientId: "",
-      agentId: "",
+      clientId: "all",
+      agentId: "all",
       status: "active",
       tags: [],
     });
   };
 
   const hasActiveFilters =
-    searchQuery || filters.clientId || filters.agentId || filters.status !== "active";
+    searchQuery || (filters.clientId && filters.clientId !== "all") || 
+    (filters.agentId && filters.agentId !== "all") || 
+    filters.status !== "active";
 
   return (
     <div className="flex flex-wrap gap-4 items-end">
@@ -95,7 +97,7 @@ export default function ConversationFilters({
             <SelectValue placeholder="Todos" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos</SelectItem>
+            <SelectItem value="all">Todos</SelectItem>
             {clients?.map((client) => (
               <SelectItem key={client.id} value={client.id}>
                 {client.name}
@@ -115,7 +117,7 @@ export default function ConversationFilters({
             <SelectValue placeholder="Todos" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos</SelectItem>
+            <SelectItem value="all">Todos</SelectItem>
             {agents?.map((agent) => (
               <SelectItem key={agent.id} value={agent.id}>
                 {agent.name}

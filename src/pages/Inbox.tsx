@@ -24,8 +24,8 @@ export default function Inbox() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({
-    clientId: "",
-    agentId: "",
+    clientId: "all",
+    agentId: "all",
     status: "active",
     tags: [] as string[],
   });
@@ -44,11 +44,11 @@ export default function Inbox() {
         query = query.eq("archived", true);
       }
 
-      if (filters.clientId) {
+      if (filters.clientId && filters.clientId !== "all") {
         query = query.eq("client_id", filters.clientId);
       }
 
-      if (filters.agentId) {
+      if (filters.agentId && filters.agentId !== "all") {
         query = query.eq("agent_id", filters.agentId);
       }
 
