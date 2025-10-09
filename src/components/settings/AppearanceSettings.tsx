@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { Upload } from "lucide-react";
 import { AgencyLogo } from "@/components/AgencyLogo";
+import { ColorPicker } from "@/components/ui/color-picker";
 
 export const AppearanceSettings = () => {
   const { theme, logoUrl } = useAgencyTheme();
@@ -163,43 +164,19 @@ export const AppearanceSettings = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="primary-color">Cor Primária</Label>
-            <div className="flex gap-2">
-              <div 
-                className="w-12 h-10 rounded border"
-                style={{ backgroundColor: `hsl(${primaryColor})` }}
-              />
-              <Input
-                id="primary-color"
-                value={primaryColor}
-                onChange={(e) => setPrimaryColor(e.target.value)}
-                placeholder="160 84% 39%"
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Formato: "H S% L%" (ex: "160 84% 39%")
-            </p>
-          </div>
+          <ColorPicker
+            label="Cor Primária"
+            value={primaryColor}
+            onChange={setPrimaryColor}
+            showInput={true}
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="secondary-color">Cor Secundária</Label>
-            <div className="flex gap-2">
-              <div 
-                className="w-12 h-10 rounded border"
-                style={{ backgroundColor: `hsl(${secondaryColor})` }}
-              />
-              <Input
-                id="secondary-color"
-                value={secondaryColor}
-                onChange={(e) => setSecondaryColor(e.target.value)}
-                placeholder="186 100% 46%"
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Formato: "H S% L%" (ex: "186 100% 46%")
-            </p>
-          </div>
+          <ColorPicker
+            label="Cor Secundária"
+            value={secondaryColor}
+            onChange={setSecondaryColor}
+            showInput={true}
+          />
 
           <Button onClick={handleThemeUpdate}>
             Salvar Tema
