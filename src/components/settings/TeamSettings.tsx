@@ -1,16 +1,22 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { usePermissions } from "@/hooks/usePermissions";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { UserPlus, Mail, Shield, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { InviteUserDialog } from "./InviteUserDialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 export const TeamSettings = () => {
   const { canManageTeam } = usePermissions();
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'member' | 'invite', id: string } | null>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: teamMembers } = useQuery({
     queryKey: ['team-members'],
@@ -65,6 +71,64 @@ export const TeamSettings = () => {
     },
   });
 
+  const handleDeleteMember = async () => {
+    if (!deleteTarget || deleteTarget.type !== 'member') return;
+
+    try {
+      const { error } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', deleteTarget.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Membro removido",
+        description: "O membro foi removido da equipe com sucesso.",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['team-members'] });
+    } catch (error) {
+      toast({
+        title: "Erro ao remover membro",
+        description: "Não foi possível remover o membro. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleteDialogOpen(false);
+      setDeleteTarget(null);
+    }
+  };
+
+  const handleDeleteInvite = async () => {
+    if (!deleteTarget || deleteTarget.type !== 'invite') return;
+
+    try {
+      const { error } = await supabase
+        .from('invites')
+        .delete()
+        .eq('id', deleteTarget.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Convite cancelado",
+        description: "O convite foi cancelado com sucesso.",
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['pending-invites'] });
+    } catch (error) {
+      toast({
+        title: "Erro ao cancelar convite",
+        description: "Não foi possível cancelar o convite. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleteDialogOpen(false);
+      setDeleteTarget(null);
+    }
+  };
+
   const getRoleBadge = (roles: any[]) => {
     if (!roles || roles.length === 0) return <Badge variant="outline">User</Badge>;
     
@@ -111,7 +175,14 @@ export const TeamSettings = () => {
                 <div className="flex items-center gap-2">
                   {getRoleBadge(member.user_roles)}
                   {canManageTeam && (
-                    <Button variant="ghost" size="icon">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => {
+                        setDeleteTarget({ type: 'member', id: member.id });
+                        setDeleteDialogOpen(true);
+                      }}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   )}
@@ -145,7 +216,14 @@ export const TeamSettings = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline">{invite.role}</Badge>
-                    <Button variant="ghost" size="icon">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => {
+                        setDeleteTarget({ type: 'invite', id: invite.id });
+                        setDeleteDialogOpen(true);
+                      }}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -160,6 +238,28 @@ export const TeamSettings = () => {
         open={inviteDialogOpen} 
         onOpenChange={setInviteDialogOpen}
       />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget?.type === 'member' 
+                ? 'Tem certeza que deseja remover este membro da equipe? Esta ação não pode ser desfeita.'
+                : 'Tem certeza que deseja cancelar este convite?'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={deleteTarget?.type === 'member' ? handleDeleteMember : handleDeleteInvite}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

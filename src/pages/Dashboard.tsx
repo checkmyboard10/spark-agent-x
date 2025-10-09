@@ -7,6 +7,7 @@ interface Stats {
   totalClients: number;
   totalAgents: number;
   activeConversations: number;
+  responseRate?: string;
 }
 
 export default function Dashboard() {
@@ -23,15 +24,23 @@ export default function Dashboard() {
 
   const loadStats = async () => {
     try {
-      const [clientsResult, agentsResult] = await Promise.all([
+      const [clientsResult, agentsResult, conversationsResult, messagesResult] = await Promise.all([
         supabase.from("clients").select("id", { count: "exact", head: true }),
         supabase.from("agents").select("id", { count: "exact", head: true }),
+        supabase.from("conversations").select("id", { count: "exact", head: true }).eq("status", "active"),
+        supabase.from("messages").select("id, direction", { count: "exact", head: false }),
       ]);
+
+      // Calculate response rate
+      const totalMessages = messagesResult.data?.length || 0;
+      const outgoingMessages = messagesResult.data?.filter(m => m.direction === 'outgoing').length || 0;
+      const responseRate = totalMessages > 0 ? Math.round((outgoingMessages / totalMessages) * 100) : 0;
 
       setStats({
         totalClients: clientsResult.count || 0,
         totalAgents: agentsResult.count || 0,
-        activeConversations: 0, // Will be implemented with conversations table
+        activeConversations: conversationsResult.count || 0,
+        responseRate: `${responseRate}%`,
       });
     } catch (error) {
       console.error("Error loading stats:", error);
@@ -61,7 +70,7 @@ export default function Dashboard() {
     },
     {
       title: "Taxa de Resposta",
-      value: "98%",
+      value: stats.responseRate || "0%",
       icon: TrendingUp,
       gradient: "from-accent to-secondary",
     },
