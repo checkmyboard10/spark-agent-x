@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Bot, MessageSquare, TrendingUp } from "lucide-react";
+import { useAgencyAnalytics } from "@/hooks/useAgencyAnalytics";
+import { PeriodSelector } from "@/components/dashboard/PeriodSelector";
+import { MessagesChart } from "@/components/dashboard/MessagesChart";
+import { TopAgentsCard } from "@/components/dashboard/TopAgentsCard";
+import { ResponseTimeCard } from "@/components/dashboard/ResponseTimeCard";
+import { ConversionFunnelCard } from "@/components/dashboard/ConversionFunnelCard";
 
 interface Stats {
   totalClients: number;
@@ -17,6 +23,15 @@ export default function Dashboard() {
     activeConversations: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState(30);
+  const [customDates, setCustomDates] = useState<{ start?: Date; end?: Date }>({});
+
+  const { dailyStats, topAgents, responseTime, conversionFunnel, isLoading: analyticsLoading } = 
+    useAgencyAnalytics({
+      period,
+      startDate: customDates.start,
+      endDate: customDates.end,
+    });
 
   useEffect(() => {
     loadStats();
@@ -76,6 +91,11 @@ export default function Dashboard() {
     },
   ];
 
+  const handlePeriodChange = (newPeriod: number, startDate?: Date, endDate?: Date) => {
+    setPeriod(newPeriod);
+    setCustomDates({ start: startDate, end: endDate });
+  };
+
   return (
     <div className="space-y-8">
       <div>
@@ -123,36 +143,56 @@ export default function Dashboard() {
         </div>
       )}
 
-      <Card className="shadow-card">
-        <CardHeader>
-          <CardTitle>Bem-vindo ao AI WhatsApp SaaS</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-muted-foreground">
-            Gerencie múltiplos clientes e agentes de IA de forma isolada e segura.
-          </p>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="p-4 rounded-lg bg-muted/50 border border-border">
-              <h3 className="font-semibold mb-2 text-primary">Multi-Tenant</h3>
-              <p className="text-sm text-muted-foreground">
-                Dados isolados por agência com segurança RLS
-              </p>
+      {/* Period Selector */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Analytics</h2>
+        <PeriodSelector value={period} onChange={handlePeriodChange} />
+      </div>
+
+      {/* Messages Chart - Full Width */}
+      <MessagesChart data={dailyStats || []} isLoading={analyticsLoading} />
+
+      {/* Top Agents & Response Time */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <TopAgentsCard data={topAgents || []} isLoading={analyticsLoading} />
+        <ResponseTimeCard data={responseTime || null} isLoading={analyticsLoading} />
+      </div>
+
+      {/* Conversion Funnel & Welcome Card */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <ConversionFunnelCard data={conversionFunnel || null} isLoading={analyticsLoading} />
+        
+        <Card className="shadow-card">
+          <CardHeader>
+            <CardTitle>Bem-vindo ao AI WhatsApp SaaS</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground text-sm">
+              Gerencie múltiplos clientes e agentes de IA de forma isolada e segura.
+            </p>
+            <div className="space-y-3">
+              <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                <h3 className="font-semibold mb-1 text-primary text-sm">Multi-Tenant</h3>
+                <p className="text-xs text-muted-foreground">
+                  Dados isolados por agência com segurança RLS
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                <h3 className="font-semibold mb-1 text-secondary text-sm">IA Configurável</h3>
+                <p className="text-xs text-muted-foreground">
+                  Personalize prompts e comportamento dos agentes
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                <h3 className="font-semibold mb-1 text-success text-sm">Automação</h3>
+                <p className="text-xs text-muted-foreground">
+                  Campanhas e follow-ups automáticos
+                </p>
+              </div>
             </div>
-            <div className="p-4 rounded-lg bg-muted/50 border border-border">
-              <h3 className="font-semibold mb-2 text-secondary">IA Configurável</h3>
-              <p className="text-sm text-muted-foreground">
-                Personalize prompts e comportamento dos agentes
-              </p>
-            </div>
-            <div className="p-4 rounded-lg bg-muted/50 border border-border">
-              <h3 className="font-semibold mb-2 text-success">Automação</h3>
-              <p className="text-sm text-muted-foreground">
-                Campanhas e follow-ups automáticos
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

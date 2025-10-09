@@ -69,23 +69,23 @@ serve(async (req) => {
 
       const webhookIds = agencyWebhooks?.map(w => w.id) || [];
 
-      // Count messages sent
+      // Count messages sent (FIXED: 'outgoing' instead of 'outbound')
       const { count: messagesSent } = conversationIds.length > 0 
         ? await supabase
             .from('messages')
             .select('*', { count: 'exact', head: true })
-            .eq('direction', 'outbound')
+            .eq('direction', 'outgoing')
             .gte('created_at', `${dateStr}T00:00:00Z`)
             .lt('created_at', `${dateStr}T23:59:59Z`)
             .in('conversation_id', conversationIds)
         : { count: 0 };
 
-      // Count messages received
+      // Count messages received (FIXED: 'incoming' instead of 'inbound')
       const { count: messagesReceived } = conversationIds.length > 0
         ? await supabase
             .from('messages')
             .select('*', { count: 'exact', head: true })
-            .eq('direction', 'inbound')
+            .eq('direction', 'incoming')
             .gte('created_at', `${dateStr}T00:00:00Z`)
             .lt('created_at', `${dateStr}T23:59:59Z`)
             .in('conversation_id', conversationIds)
