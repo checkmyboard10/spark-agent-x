@@ -159,7 +159,7 @@ export const FlowCanvas = ({
           attributionPosition="bottom-left"
           selectionOnDrag
           panOnDrag={[1, 2]} // middle and right mouse button
-          selectionMode="partial"
+          selectNodesOnDrag={true}
         >
           <Background gap={showGrid ? 16 : 0} />
           <Controls />
