@@ -1,11 +1,12 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Palette, Users, Globe, Bell, CreditCard, Key } from "lucide-react";
+import { Palette, Users, Globe, Bell, CreditCard, Key, MessageSquare } from "lucide-react";
 import { AppearanceSettings } from "@/components/settings/AppearanceSettings";
 import { TeamSettings } from "@/components/settings/TeamSettings";
 import { DomainSettings } from "@/components/settings/DomainSettings";
 import { NotificationsSettings } from "@/components/settings/NotificationsSettings";
 import { BillingSettings } from "@/components/settings/BillingSettings";
 import { APISettings } from "@/components/settings/APISettings";
+import QuickRepliesSettings from "@/components/settings/QuickRepliesSettings";
 
 export default function Settings() {
   return (
@@ -18,7 +19,7 @@ export default function Settings() {
       </div>
 
       <Tabs defaultValue="appearance" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="appearance" className="flex items-center gap-2">
             <Palette className="h-4 w-4" />
             Aparência
@@ -42,6 +43,10 @@ export default function Settings() {
           <TabsTrigger value="api" className="flex items-center gap-2">
             <Key className="h-4 w-4" />
             API
+          </TabsTrigger>
+          <TabsTrigger value="quick-replies" className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            Respostas Rápidas
           </TabsTrigger>
         </TabsList>
 
@@ -67,6 +72,10 @@ export default function Settings() {
 
         <TabsContent value="api" className="mt-6">
           <APISettings />
+        </TabsContent>
+
+        <TabsContent value="quick-replies" className="mt-6">
+          <QuickRepliesSettings />
         </TabsContent>
       </Tabs>
     </div>

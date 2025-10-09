@@ -11,6 +11,7 @@ import Agents from "./pages/Agents";
 import Campaigns from "./pages/Campaigns";
 import Integrations from "./pages/Integrations";
 import Settings from "./pages/Settings";
+import Inbox from "./pages/Inbox";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
         <Routes>
           <Route path="/auth" element={<Auth />} />
           <Route path="/" element={<Layout><Dashboard /></Layout>} />
+          <Route path="/inbox" element={<Layout><Inbox /></Layout>} />
           <Route path="/clients" element={<Layout><Clients /></Layout>} />
           <Route path="/agents" element={<Layout><Agents /></Layout>} />
           <Route path="/campaigns" element={<Layout><Campaigns /></Layout>} />

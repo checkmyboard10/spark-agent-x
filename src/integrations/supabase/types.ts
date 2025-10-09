@@ -376,9 +376,75 @@ export type Database = {
           },
         ]
       }
+      conversation_notes: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_notes_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversation_tags: {
+        Row: {
+          color: string
+          conversation_id: string
+          created_at: string
+          id: string
+          tag: string
+        }
+        Insert: {
+          color: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          tag: string
+        }
+        Update: {
+          color?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          tag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_tags_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           agent_id: string
+          archived: boolean | null
+          archived_at: string | null
           client_id: string
           contact_name: string
           contact_phone: string
@@ -391,6 +457,8 @@ export type Database = {
         }
         Insert: {
           agent_id: string
+          archived?: boolean | null
+          archived_at?: string | null
           client_id: string
           contact_name: string
           contact_phone: string
@@ -403,6 +471,8 @@ export type Database = {
         }
         Update: {
           agent_id?: string
+          archived?: boolean | null
+          archived_at?: string | null
           client_id?: string
           contact_name?: string
           contact_phone?: string
@@ -612,6 +682,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "profiles_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quick_replies: {
+        Row: {
+          agency_id: string
+          category: string | null
+          content: string
+          created_at: string
+          id: string
+          shortcuts: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          agency_id: string
+          category?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          shortcuts?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string
+          category?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          shortcuts?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quick_replies_agency_id_fkey"
             columns: ["agency_id"]
             isOneToOne: false
             referencedRelation: "agencies"

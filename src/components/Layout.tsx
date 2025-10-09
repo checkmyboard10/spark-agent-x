@@ -13,7 +13,8 @@ import {
   X,
   Send,
   Plug,
-  Settings
+  Settings,
+  MessageSquare
 } from "lucide-react";
 import { toast } from "sonner";
 import { AgencyLogo } from "@/components/AgencyLogo";
@@ -25,6 +26,7 @@ interface LayoutProps {
 
 const navItems = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/inbox", label: "Inbox", icon: MessageSquare },
   { path: "/clients", label: "Clientes", icon: Users },
   { path: "/agents", label: "Agentes IA", icon: Bot },
   { path: "/campaigns", label: "Campanhas", icon: Send },
