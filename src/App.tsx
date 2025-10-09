@@ -12,6 +12,7 @@ import Campaigns from "./pages/Campaigns";
 import Integrations from "./pages/Integrations";
 import Settings from "./pages/Settings";
 import Inbox from "./pages/Inbox";
+import FlowEditor from "./pages/FlowEditor";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,8 @@ const App = () => (
           <Route path="/campaigns" element={<Layout><Campaigns /></Layout>} />
           <Route path="/integrations" element={<Layout><Integrations /></Layout>} />
           <Route path="/settings" element={<Layout><Settings /></Layout>} />
+          <Route path="/flows/:agentId" element={<FlowEditor />} />
+          <Route path="/flows/:agentId/:flowId" element={<FlowEditor />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Bot, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { Plus, Bot, MoreVertical, Pencil, Trash2, GitBranch } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -47,6 +48,7 @@ interface Client {
 }
 
 export default function Agents() {
+  const navigate = useNavigate();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
@@ -392,9 +394,13 @@ export default function Agents() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => navigate(`/flows/${agent.id}`)}>
+                      <GitBranch className="mr-2 h-4 w-4" />
+                      Editar Fluxo
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => openEditDialog(agent)}>
                       <Pencil className="mr-2 h-4 w-4" />
-                      Editar
+                      Editar Agente
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleDelete(agent.id)}

@@ -97,6 +97,56 @@ export type Database = {
           },
         ]
       }
+      agent_flows: {
+        Row: {
+          agent_id: string
+          created_at: string
+          description: string | null
+          edges: Json
+          id: string
+          is_active: boolean | null
+          name: string
+          nodes: Json
+          updated_at: string
+          variables: Json | null
+          version: number | null
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string
+          description?: string | null
+          edges?: Json
+          id?: string
+          is_active?: boolean | null
+          name: string
+          nodes?: Json
+          updated_at?: string
+          variables?: Json | null
+          version?: number | null
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string
+          description?: string | null
+          edges?: Json
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          nodes?: Json
+          updated_at?: string
+          variables?: Json | null
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_flows_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agents: {
         Row: {
           active: boolean | null
@@ -496,6 +546,63 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flow_executions: {
+        Row: {
+          completed_at: string | null
+          conversation_id: string
+          created_at: string
+          current_node_id: string | null
+          error_message: string | null
+          execution_log: Json | null
+          flow_id: string
+          id: string
+          started_at: string
+          status: string
+          variables: Json | null
+        }
+        Insert: {
+          completed_at?: string | null
+          conversation_id: string
+          created_at?: string
+          current_node_id?: string | null
+          error_message?: string | null
+          execution_log?: Json | null
+          flow_id: string
+          id?: string
+          started_at?: string
+          status?: string
+          variables?: Json | null
+        }
+        Update: {
+          completed_at?: string | null
+          conversation_id?: string
+          created_at?: string
+          current_node_id?: string | null
+          error_message?: string | null
+          execution_log?: Json | null
+          flow_id?: string
+          id?: string
+          started_at?: string
+          status?: string
+          variables?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flow_executions_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "flow_executions_flow_id_fkey"
+            columns: ["flow_id"]
+            isOneToOne: false
+            referencedRelation: "agent_flows"
             referencedColumns: ["id"]
           },
         ]
