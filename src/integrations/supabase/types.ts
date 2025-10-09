@@ -150,8 +150,10 @@ export type Database = {
       agents: {
         Row: {
           active: boolean | null
+          active_flow_id: string | null
           client_id: string
           created_at: string
+          flow_enabled: boolean | null
           humanization_enabled: boolean | null
           id: string
           is_calendar_enabled: boolean | null
@@ -164,8 +166,10 @@ export type Database = {
         }
         Insert: {
           active?: boolean | null
+          active_flow_id?: string | null
           client_id: string
           created_at?: string
+          flow_enabled?: boolean | null
           humanization_enabled?: boolean | null
           id?: string
           is_calendar_enabled?: boolean | null
@@ -178,8 +182,10 @@ export type Database = {
         }
         Update: {
           active?: boolean | null
+          active_flow_id?: string | null
           client_id?: string
           created_at?: string
+          flow_enabled?: boolean | null
           humanization_enabled?: boolean | null
           id?: string
           is_calendar_enabled?: boolean | null
@@ -191,6 +197,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "agents_active_flow_id_fkey"
+            columns: ["active_flow_id"]
+            isOneToOne: false
+            referencedRelation: "agent_flows"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "agents_client_id_fkey"
             columns: ["client_id"]

@@ -77,6 +77,18 @@ export const FlowSidebar = ({ onAddNode }: FlowSidebarProps) => {
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
     event.dataTransfer.setData('application/reactflow', nodeType);
     event.dataTransfer.effectAllowed = 'move';
+    
+    // Add visual feedback
+    if (event.currentTarget instanceof HTMLElement) {
+      event.currentTarget.style.opacity = '0.5';
+    }
+  };
+
+  const onDragEnd = (event: React.DragEvent) => {
+    // Reset visual feedback
+    if (event.currentTarget instanceof HTMLElement) {
+      event.currentTarget.style.opacity = '1';
+    }
   };
 
   return (
@@ -95,9 +107,10 @@ export const FlowSidebar = ({ onAddNode }: FlowSidebarProps) => {
             return (
               <Card
                 key={node.type}
-                draggable
-                onDragStart={(e) => onDragStart(e, node.type)}
-                onClick={() => onAddNode(node.type)}
+            draggable
+            onDragStart={(e) => onDragStart(e, node.type)}
+            onDragEnd={onDragEnd}
+            onClick={() => onAddNode(node.type)}
                 className="p-3 cursor-move hover:bg-accent transition-colors"
               >
                 <div className="flex items-start gap-3">

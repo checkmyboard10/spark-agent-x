@@ -1,17 +1,22 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { FlowToolbar } from '@/components/flow/FlowToolbar';
 import { FlowSidebar } from '@/components/flow/FlowSidebar';
 import { FlowCanvasWrapper } from '@/components/flow/FlowCanvas';
 import { FlowVariablesPanel } from '@/components/flow/FlowVariablesPanel';
+import { FlowTestPanel } from '@/components/flow/FlowTestPanel';
+import { FlowExecutionsList } from '@/components/flow/FlowExecutionsList';
+import { FlowExecutionViewer } from '@/components/flow/FlowExecutionViewer';
 import { useFlowEditor } from '@/hooks/useFlowEditor';
 import { autoLayout, validateFlow, getNodeStats } from '@/lib/flowHelpers';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle, CheckCircle, Info } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const FlowEditor = () => {
   const { agentId, flowId } = useParams<{ agentId: string; flowId?: string }>();
+  const [selectedExecutionId, setSelectedExecutionId] = useState<string | null>(null);
   
   if (!agentId) {
     return <div>Agent ID não fornecido</div>;
@@ -166,6 +171,29 @@ const FlowEditor = () => {
           {/* Variables Panel */}
           <div className="absolute top-4 right-4 z-10">
             <FlowVariablesPanel nodes={nodes} />
+          </div>
+
+          {/* Right Panel - Test & Executions */}
+          <div className="absolute top-4 right-80 bottom-4 w-96 z-10">
+            <Tabs defaultValue="test" className="h-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="test">Testar</TabsTrigger>
+                <TabsTrigger value="history">Histórico</TabsTrigger>
+              </TabsList>
+              <TabsContent value="test" className="h-[calc(100%-40px)] overflow-auto">
+                {flowId && <FlowTestPanel flowId={flowId} agentId={agentId} />}
+              </TabsContent>
+              <TabsContent value="history" className="h-[calc(100%-40px)] overflow-auto">
+                {flowId && selectedExecutionId ? (
+                  <FlowExecutionViewer executionId={selectedExecutionId} />
+                ) : (
+                  flowId && <FlowExecutionsList 
+                    flowId={flowId} 
+                    onViewExecution={setSelectedExecutionId}
+                  />
+                )}
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>

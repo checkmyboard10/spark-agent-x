@@ -44,14 +44,27 @@ export const FlowCanvas = ({
       event.preventDefault();
 
       const type = event.dataTransfer.getData('application/reactflow');
-      if (!type || !reactFlowInstance.current) return;
+      if (!type) {
+        console.warn('No node type in drag data');
+        return;
+      }
 
-      const position = reactFlowInstance.current.screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
-      });
+      if (!reactFlowInstance.current) {
+        console.warn('ReactFlow instance not ready');
+        return;
+      }
 
-      onAddNode(type, position);
+      try {
+        const position = reactFlowInstance.current.screenToFlowPosition({
+          x: event.clientX,
+          y: event.clientY,
+        });
+
+        console.log('Dropping node', type, 'at position', position);
+        onAddNode(type, position);
+      } catch (error) {
+        console.error('Error dropping node:', error);
+      }
     },
     [onAddNode]
   );

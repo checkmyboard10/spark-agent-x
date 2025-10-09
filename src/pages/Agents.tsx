@@ -39,6 +39,8 @@ interface Agent {
   prompt: string;
   humanization_enabled: boolean;
   active: boolean;
+  flow_enabled?: boolean;
+  active_flow_id?: string | null;
   clients?: { name: string };
 }
 
@@ -60,6 +62,7 @@ export default function Agents() {
     type: "general",
     prompt: "",
     humanization_enabled: true,
+    flow_enabled: false,
   });
 
   useEffect(() => {
@@ -121,6 +124,7 @@ export default function Agents() {
             type: formData.type,
             prompt: formData.prompt,
             humanization_enabled: formData.humanization_enabled,
+            flow_enabled: formData.flow_enabled,
           })
           .eq("id", editingAgent.id);
 
@@ -133,6 +137,7 @@ export default function Agents() {
           type: formData.type,
           prompt: formData.prompt,
           humanization_enabled: formData.humanization_enabled,
+          flow_enabled: formData.flow_enabled,
         });
 
         if (error) throw error;
@@ -170,6 +175,7 @@ export default function Agents() {
       type: agent.type,
       prompt: agent.prompt,
       humanization_enabled: agent.humanization_enabled,
+      flow_enabled: agent.flow_enabled || false,
     });
     setDialogOpen(true);
   };
@@ -182,6 +188,7 @@ export default function Agents() {
       type: "general",
       prompt: "",
       humanization_enabled: true,
+      flow_enabled: false,
     });
   };
 
@@ -314,6 +321,21 @@ export default function Agents() {
                   }
                 />
               </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="flow_enabled">Usar Fluxo Visual</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Controla conversas usando editor visual de fluxos
+                  </p>
+                </div>
+                <Switch
+                  id="flow_enabled"
+                  checked={formData.flow_enabled}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, flow_enabled: checked })
+                  }
+                />
+              </div>
               <div className="flex gap-2 pt-4">
                 <Button type="button" variant="outline" onClick={closeDialog}>
                   Cancelar
@@ -383,6 +405,12 @@ export default function Agents() {
                     ) : (
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
                         Inativo
+                      </span>
+                    )}
+                    {agent.flow_enabled && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                        <GitBranch className="h-3 w-3 mr-1" />
+                        Fluxo
                       </span>
                     )}
                   </div>

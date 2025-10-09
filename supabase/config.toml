@@ -1,1 +1,40 @@
 project_id = "dyaeeimzscalygstjlgn"
+
+[functions.accept-invite]
+verify_jwt = false
+
+[functions.send-invite]
+verify_jwt = true
+
+[functions.aggregate-stats]
+verify_jwt = false
+
+[functions.campaign-worker]
+verify_jwt = false
+
+[functions.process-csv]
+verify_jwt = true
+
+[functions.connect-whatsapp]
+verify_jwt = true
+
+[functions.disconnect-whatsapp]
+verify_jwt = true
+
+[functions.send-whatsapp-message]
+verify_jwt = true
+
+[functions.update-agency-theme]
+verify_jwt = true
+
+[functions.upload-agency-logo]
+verify_jwt = true
+
+[functions.webhook-dispatch]
+verify_jwt = false
+
+[functions.webhook-test]
+verify_jwt = true
+
+[functions.execute-flow]
+verify_jwt = true
