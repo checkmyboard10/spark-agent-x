@@ -32,6 +32,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface Agent {
   id: string;
@@ -63,11 +64,18 @@ interface Client {
   name: string;
 }
 
+interface Flow {
+  id: string;
+  name: string;
+  description?: string;
+}
+
 export default function Agents() {
   const navigate = useNavigate();
   const { permissions } = usePermissions();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
+  const [availableFlows, setAvailableFlows] = useState<Flow[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
@@ -81,11 +89,20 @@ export default function Agents() {
     prompt: "",
     humanization_enabled: true,
     flow_enabled: false,
+    active_flow_id: null as string | null,
   });
 
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (formData.client_id) {
+      loadAvailableFlows(formData.client_id);
+    } else {
+      setAvailableFlows([]);
+    }
+  }, [formData.client_id]);
 
   const loadData = async () => {
     try {
@@ -138,35 +155,59 @@ export default function Agents() {
     }
   };
 
+  const loadAvailableFlows = async (clientId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('agent_flows')
+        .select('id, name, description, agent_id, agents!inner(client_id)')
+        .eq('agents.client_id', clientId)
+        .eq('is_active', true);
+      
+      if (error) throw error;
+      setAvailableFlows(data || []);
+    } catch (error) {
+      console.error('Error loading flows:', error);
+      setAvailableFlows([]);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validações
+    if (formData.flow_enabled && !formData.active_flow_id) {
+      toast.error('Você deve selecionar um fluxo!');
+      return;
+    }
+    
+    if (!formData.flow_enabled && !formData.prompt.trim()) {
+      toast.error('Você deve definir um prompt para o agente IA!');
+      return;
+    }
+
     setLoading(true);
 
     try {
+      const agentData = {
+        name: formData.name,
+        client_id: formData.client_id,
+        type: formData.type,
+        prompt: formData.prompt,
+        humanization_enabled: formData.humanization_enabled,
+        flow_enabled: formData.flow_enabled,
+        active_flow_id: formData.active_flow_id,
+      };
+
       if (editingAgent) {
         const { error } = await supabase
           .from("agents")
-          .update({
-            name: formData.name,
-            client_id: formData.client_id,
-            type: formData.type,
-            prompt: formData.prompt,
-            humanization_enabled: formData.humanization_enabled,
-            flow_enabled: formData.flow_enabled,
-          })
+          .update(agentData)
           .eq("id", editingAgent.id);
 
         if (error) throw error;
         toast.success("Agente atualizado!");
       } else {
-        const { error } = await supabase.from("agents").insert({
-          name: formData.name,
-          client_id: formData.client_id,
-          type: formData.type,
-          prompt: formData.prompt,
-          humanization_enabled: formData.humanization_enabled,
-          flow_enabled: formData.flow_enabled,
-        });
+        const { error } = await supabase.from("agents").insert(agentData);
 
         if (error) throw error;
         toast.success("Agente criado!");
@@ -204,6 +245,7 @@ export default function Agents() {
       prompt: agent.prompt,
       humanization_enabled: agent.humanization_enabled,
       flow_enabled: agent.flow_enabled || false,
+      active_flow_id: agent.active_flow_id || null,
     });
     await loadKnowledgeFile(agent.id);
     setDialogOpen(true);
@@ -308,6 +350,7 @@ export default function Agents() {
 
   const resetForm = () => {
     setEditingAgent(null);
+    setKnowledgeFile(null);
     setFormData({
       name: "",
       client_id: "",
@@ -315,6 +358,7 @@ export default function Agents() {
       prompt: "",
       humanization_enabled: true,
       flow_enabled: false,
+      active_flow_id: null,
     });
   };
 
@@ -416,22 +460,113 @@ export default function Agents() {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label htmlFor="prompt">Prompt do Sistema *</Label>
-                <Textarea
-                  id="prompt"
-                  value={formData.prompt}
-                  onChange={(e) =>
-                    setFormData({ ...formData, prompt: e.target.value })
-                  }
-                  placeholder="Você é um assistente prestativo que..."
-                  rows={6}
-                  required
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Define como o agente deve se comportar e responder
-                </p>
+              <div className="space-y-3 border-t pt-4">
+                <div>
+                  <Label className="text-base font-semibold">🤖 Modo de Operação</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Escolha como este agente irá responder
+                  </p>
+                </div>
+
+                <RadioGroup
+                  value={formData.flow_enabled ? 'flow' : 'ai'}
+                  onValueChange={(value) => {
+                    const isFlow = value === 'flow';
+                    setFormData({
+                      ...formData,
+                      flow_enabled: isFlow,
+                      active_flow_id: isFlow ? formData.active_flow_id : null
+                    });
+                  }}
+                >
+                  <div className="flex items-start space-x-2">
+                    <RadioGroupItem value="ai" id="mode-ai" />
+                    <div className="grid gap-1.5 leading-none">
+                      <Label htmlFor="mode-ai" className="font-medium cursor-pointer">
+                        Agente IA Inteligente
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Usa o prompt do sistema e base de conhecimento para responder
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-2">
+                    <RadioGroupItem value="flow" id="mode-flow" />
+                    <div className="grid gap-1.5 leading-none">
+                      <Label htmlFor="mode-flow" className="font-medium cursor-pointer">
+                        Fluxo Visual
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Executa um fluxo visual pré-configurado com regras
+                      </p>
+                    </div>
+                  </div>
+                </RadioGroup>
+
+                {formData.flow_enabled && (
+                  <div className="ml-6 mt-3 space-y-2">
+                    <Label htmlFor="active_flow">Selecionar Fluxo *</Label>
+                    <Select
+                      value={formData.active_flow_id || undefined}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, active_flow_id: value })
+                      }
+                      required={formData.flow_enabled}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Escolha um fluxo..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableFlows.length === 0 ? (
+                          <SelectItem value="__none__" disabled>
+                            Nenhum fluxo disponível
+                          </SelectItem>
+                        ) : (
+                          availableFlows.map((flow) => (
+                            <SelectItem key={flow.id} value={flow.id}>
+                              <div>
+                                <div className="font-medium">{flow.name}</div>
+                                {flow.description && (
+                                  <div className="text-xs text-muted-foreground">
+                                    {flow.description}
+                                  </div>
+                                )}
+                              </div>
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    
+                    {availableFlows.length === 0 && (
+                      <p className="text-xs text-amber-600">
+                        ⚠️ Crie um fluxo primeiro na página de Fluxos
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
+
+              {!formData.flow_enabled && (
+                <div>
+                  <Label htmlFor="prompt">Prompt do Sistema *</Label>
+                  <Textarea
+                    id="prompt"
+                    value={formData.prompt}
+                    onChange={(e) =>
+                      setFormData({ ...formData, prompt: e.target.value })
+                    }
+                    placeholder="Você é um assistente prestativo que..."
+                    rows={6}
+                    required={!formData.flow_enabled}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Define como o agente deve se comportar e responder
+                  </p>
+                </div>
+              )}
+
               <div className="flex items-center justify-between">
                 <div>
                   <Label htmlFor="humanization">Humanização</Label>
@@ -444,21 +579,6 @@ export default function Agents() {
                   checked={formData.humanization_enabled}
                   onCheckedChange={(checked) =>
                     setFormData({ ...formData, humanization_enabled: checked })
-                  }
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="flow_enabled">Usar Fluxo Visual</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Controla conversas usando editor visual de fluxos
-                  </p>
-                </div>
-                <Switch
-                  id="flow_enabled"
-                  checked={formData.flow_enabled}
-                  onCheckedChange={(checked) =>
-                    setFormData({ ...formData, flow_enabled: checked })
                   }
                 />
               </div>
@@ -622,10 +742,15 @@ export default function Agents() {
                         Inativo
                       </span>
                     )}
-                    {agent.flow_enabled && (
+                    {agent.flow_enabled ? (
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400">
                         <GitBranch className="h-3 w-3 mr-1" />
                         Fluxo
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                        <Bot className="h-3 w-3 mr-1" />
+                        IA
                       </span>
                     )}
                   </div>
