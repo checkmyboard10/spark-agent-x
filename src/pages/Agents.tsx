@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Bot, MoreVertical, Pencil, Trash2, GitBranch, FileText, Loader2 } from "lucide-react";
+import { Plus, Bot, MoreVertical, Pencil, Trash2, GitBranch, FileText, Loader2, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { usePermissions } from "@/hooks/usePermissions";
 import { toast } from "sonner";
@@ -176,7 +176,7 @@ export default function Agents() {
 
     // Validações
     if (formData.flow_enabled && !formData.active_flow_id) {
-      toast.error('Você deve selecionar um fluxo!');
+      toast.error('Você deve selecionar um flow!');
       return;
     }
     
@@ -495,10 +495,10 @@ export default function Agents() {
                     <RadioGroupItem value="flow" id="mode-flow" />
                     <div className="grid gap-1.5 leading-none">
                       <Label htmlFor="mode-flow" className="font-medium cursor-pointer">
-                        Fluxo Visual
+                        Flow Visual
                       </Label>
                       <p className="text-xs text-muted-foreground">
-                        Executa um fluxo visual pré-configurado com regras
+                        Executa um flow visual pré-configurado com regras
                       </p>
                     </div>
                   </div>
@@ -506,7 +506,7 @@ export default function Agents() {
 
                 {formData.flow_enabled && (
                   <div className="ml-6 mt-3 space-y-2">
-                    <Label htmlFor="active_flow">Selecionar Fluxo *</Label>
+                    <Label htmlFor="active_flow">Selecionar Flow *</Label>
                     <Select
                       value={formData.active_flow_id || undefined}
                       onValueChange={(value) =>
@@ -515,12 +515,12 @@ export default function Agents() {
                       required={formData.flow_enabled}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Escolha um fluxo..." />
+                        <SelectValue placeholder="Escolha um flow..." />
                       </SelectTrigger>
                       <SelectContent>
                         {availableFlows.length === 0 ? (
                           <SelectItem value="__none__" disabled>
-                            Nenhum fluxo disponível
+                            Nenhum flow disponível
                           </SelectItem>
                         ) : (
                           availableFlows.map((flow) => (
@@ -540,9 +540,24 @@ export default function Agents() {
                     </Select>
                     
                     {availableFlows.length === 0 && (
-                      <p className="text-xs text-amber-600">
-                        ⚠️ Crie um fluxo primeiro na página de Fluxos
-                      </p>
+                      <div className="space-y-2">
+                        <p className="text-xs text-amber-600">
+                          ⚠️ Nenhum flow disponível ainda
+                        </p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => {
+                            setDialogOpen(false);
+                            navigate('/flow-editor');
+                          }}
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Crie seu Flow
+                        </Button>
+                      </div>
                     )}
                   </div>
                 )}
@@ -742,10 +757,10 @@ export default function Agents() {
                         Inativo
                       </span>
                     )}
-                    {agent.flow_enabled ? (
+                     {agent.flow_enabled ? (
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400">
                         <GitBranch className="h-3 w-3 mr-1" />
-                        Fluxo
+                        Flow
                       </span>
                     ) : (
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400">
@@ -764,7 +779,7 @@ export default function Agents() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => navigate(`/flows/${agent.id}`)}>
                       <GitBranch className="mr-2 h-4 w-4" />
-                      Editar Fluxo
+                      Editar Flow
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => openEditDialog(agent)}>
                       <Pencil className="mr-2 h-4 w-4" />

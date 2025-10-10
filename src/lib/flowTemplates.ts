@@ -13,7 +13,7 @@ export const flowTemplates: FlowTemplate[] = [
   {
     id: 'basic-support',
     name: 'Atendimento Básico',
-    description: 'Fluxo simples de boas-vindas e coleta de informações',
+    description: 'Flow simples de boas-vindas e coleta de informações',
     category: 'Suporte',
     nodes: [
       {

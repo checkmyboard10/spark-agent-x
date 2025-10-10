@@ -132,7 +132,7 @@ const AgentNode = ({ data, selected }: NodeProps) => {
                 placeholder="Ex: 10"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Número máximo de interações antes de retornar ao fluxo
+                Número máximo de interações antes de retornar ao flow
               </p>
             </div>
 

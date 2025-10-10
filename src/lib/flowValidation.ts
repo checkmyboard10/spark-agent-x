@@ -10,13 +10,13 @@ export const validateFlowAdvanced = (nodes: Node[], edges: Edge[]): ValidationRe
   if (startNodes.length === 0) {
     errors.push({
       type: 'error',
-      message: 'O fluxo precisa ter um nó de Início',
+      message: 'O flow precisa ter um nó de Início',
       code: 'NO_START_NODE',
     });
   } else if (startNodes.length > 1) {
     warnings.push({
       type: 'warning',
-      message: 'O fluxo tem mais de um nó de Início',
+      message: 'O flow tem mais de um nó de Início',
       code: 'MULTIPLE_START_NODES',
     });
   }

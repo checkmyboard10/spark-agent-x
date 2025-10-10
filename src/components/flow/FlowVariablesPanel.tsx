@@ -134,7 +134,7 @@ export const FlowVariablesPanel = ({ nodes }: FlowVariablesPanelProps) => {
               <DialogHeader>
                 <DialogTitle>Criar Variável Customizada</DialogTitle>
                 <DialogDescription>
-                  Adicione uma nova variável personalizada ao fluxo
+                  Adicione uma nova variável personalizada ao flow
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
@@ -191,7 +191,7 @@ export const FlowVariablesPanel = ({ nodes }: FlowVariablesPanelProps) => {
           </Dialog>
         </div>
         <CardDescription>
-          Gerencie as variáveis do fluxo
+          Gerencie as variáveis do flow
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

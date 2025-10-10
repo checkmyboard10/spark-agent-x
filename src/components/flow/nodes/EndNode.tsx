@@ -16,7 +16,7 @@ const EndNode = ({ data }: NodeProps) => {
         </div>
         <div className="flex flex-col">
           <div className="text-xs font-medium text-white/80 uppercase tracking-wide">Fim</div>
-          <div className="text-sm font-bold text-white">{(data.label as string) || 'Fim do Fluxo'}</div>
+          <div className="text-sm font-bold text-white">{(data.label as string) || 'Fim do Flow'}</div>
         </div>
       </div>
     </div>

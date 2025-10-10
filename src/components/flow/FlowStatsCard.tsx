@@ -20,7 +20,7 @@ export const FlowStatsCard = ({ nodes, edges }: FlowStatsCardProps) => {
     <Card className="p-4 space-y-3">
       <h3 className="font-semibold text-sm flex items-center gap-2">
         <Network className="h-4 w-4" />
-        Estatísticas do Fluxo
+        Estatísticas do Flow
       </h3>
 
       <div className="space-y-2 text-sm">

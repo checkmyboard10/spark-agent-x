@@ -16,7 +16,7 @@ const nodeTypes: NodeType[] = [
     label: 'Início',
     icon: Play,
     color: 'text-green-600',
-    description: 'Ponto de partida do fluxo',
+    description: 'Ponto de partida do flow',
   },
   {
     type: 'message',
@@ -30,7 +30,7 @@ const nodeTypes: NodeType[] = [
     label: 'Condição',
     icon: GitBranch,
     color: 'text-indigo-600',
-    description: 'Se/Senão - decisões no fluxo',
+    description: 'Se/Senão - decisões no flow',
   },
   {
     type: 'wait',
@@ -65,7 +65,7 @@ const nodeTypes: NodeType[] = [
     label: 'Fim',
     icon: StopCircle,
     color: 'text-red-600',
-    description: 'Finaliza o fluxo',
+    description: 'Finaliza o flow',
   },
 ];
 

@@ -98,7 +98,7 @@ export const useFlowExecution = (flowId?: string) => {
       if (error) throw error;
 
       toast({
-        title: 'Fluxo executado',
+        title: 'Flow executado',
         description: 'A execução foi iniciada com sucesso'
       });
 
@@ -107,7 +107,7 @@ export const useFlowExecution = (flowId?: string) => {
     } catch (error) {
       console.error('Error executing flow:', error);
       toast({
-        title: 'Erro ao executar fluxo',
+        title: 'Erro ao executar flow',
         description: error instanceof Error ? error.message : 'Erro desconhecido',
         variant: 'destructive'
       });

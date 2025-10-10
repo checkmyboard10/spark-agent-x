@@ -11,7 +11,7 @@ const StartNode = ({ data }: NodeProps) => {
         </div>
         <div className="flex flex-col">
           <div className="text-xs font-medium text-white/80 uppercase tracking-wide">Início</div>
-          <div className="text-sm font-bold text-white">{(data.label as string) || 'Início do Fluxo'}</div>
+          <div className="text-sm font-bold text-white">{(data.label as string) || 'Início do Flow'}</div>
         </div>
       </div>
       <Handle

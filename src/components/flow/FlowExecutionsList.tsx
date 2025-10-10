@@ -76,14 +76,14 @@ export const FlowExecutionsList = ({ flowId, onViewExecution }: FlowExecutionsLi
       <CardHeader>
         <CardTitle>Histórico de Execuções</CardTitle>
         <CardDescription>
-          Últimas 50 execuções deste fluxo
+          Últimas 50 execuções deste flow
         </CardDescription>
       </CardHeader>
       <CardContent>
         {executions.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-sm text-muted-foreground">
-              Nenhuma execução ainda. Teste o fluxo para ver o histórico!
+              Nenhuma execução ainda. Teste o flow para ver o histórico!
             </p>
           </div>
         ) : (

@@ -29,26 +29,26 @@ const generateUniqueName = async (agentId: string): Promise<string> => {
     .order('created_at', { ascending: false });
   
   if (!data || data.length === 0) {
-    return 'Fluxo 1';
+    return 'Flow 1';
   }
   
   // Find highest number
   let maxNum = 0;
   data.forEach(flow => {
-    const match = flow.name.match(/^Fluxo (\d+)$/);
+    const match = flow.name.match(/^Flow (\d+)$/);
     if (match) {
       maxNum = Math.max(maxNum, parseInt(match[1]));
     }
   });
   
-  return `Fluxo ${maxNum + 1}`;
+  return `Flow ${maxNum + 1}`;
 };
 
 export const useFlowEditor = (agentId: string, flowId?: string) => {
   const navigate = useNavigate();
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
-  const [flowName, setFlowName] = useState('Novo Fluxo');
+  const [flowName, setFlowName] = useState('Novo Flow');
   const [flowDescription, setFlowDescription] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [isSaving, setSaving] = useState(false);
@@ -91,7 +91,7 @@ export const useFlowEditor = (agentId: string, flowId?: string) => {
       }
     } catch (error: any) {
       console.error('Error loading flow:', error);
-      toast.error('Erro ao carregar fluxo');
+      toast.error('Erro ao carregar flow');
     } finally {
       setLoading(false);
     }
@@ -100,7 +100,7 @@ export const useFlowEditor = (agentId: string, flowId?: string) => {
   // Save flow
   const saveFlow = useCallback(async () => {
     if (!flowName.trim()) {
-      toast.error('Digite um nome para o fluxo');
+      toast.error('Digite um nome para o flow');
       return;
     }
 
@@ -124,7 +124,7 @@ export const useFlowEditor = (agentId: string, flowId?: string) => {
 
         if (error) throw error;
         setLastSaved(new Date());
-        toast.success('✓ Fluxo salvo');
+        toast.success('✓ Flow salvo');
       } else {
         // Check for duplicate name before creating
         const { data: existing } = await supabase
@@ -135,7 +135,7 @@ export const useFlowEditor = (agentId: string, flowId?: string) => {
           .maybeSingle();
         
         if (existing) {
-          toast.error('Já existe um fluxo com este nome. Escolha outro nome.');
+          toast.error('Já existe um flow com este nome. Escolha outro nome.');
           setSaving(false);
           return;
         }
@@ -149,7 +149,7 @@ export const useFlowEditor = (agentId: string, flowId?: string) => {
 
         if (error) throw error;
         setLastSaved(new Date());
-        toast.success('✓ Fluxo criado');
+        toast.success('✓ Flow criado');
         navigate(`/flows/${agentId}/${data.id}`);
       }
     } catch (error: any) {

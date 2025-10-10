@@ -29,7 +29,7 @@ export const FlowTestPanel = ({ flowId, agentId }: FlowTestPanelProps) => {
     setIsRunning(true);
     setConsoleLog([{
       type: 'info',
-      message: 'Iniciando teste do fluxo...',
+      message: 'Iniciando teste do flow...',
       time: new Date().toLocaleTimeString()
     }]);
 
@@ -40,7 +40,7 @@ export const FlowTestPanel = ({ flowId, agentId }: FlowTestPanelProps) => {
     
     setConsoleLog(prev => [...prev, {
       type: 'success',
-      message: 'Fluxo iniciado com sucesso',
+      message: 'Flow iniciado com sucesso',
       time: new Date().toLocaleTimeString()
     }]);
   };
@@ -76,10 +76,10 @@ export const FlowTestPanel = ({ flowId, agentId }: FlowTestPanelProps) => {
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          🧪 Testar Fluxo
+          🧪 Testar Flow
         </CardTitle>
         <CardDescription>
-          Execute o fluxo manualmente para testar seu comportamento
+          Execute o flow manualmente para testar seu comportamento
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -105,7 +105,7 @@ export const FlowTestPanel = ({ flowId, agentId }: FlowTestPanelProps) => {
             <Textarea
               value={initialMessage}
               onChange={(e) => setInitialMessage(e.target.value)}
-              placeholder="Digite a mensagem que iniciará o fluxo..."
+              placeholder="Digite a mensagem que iniciará o flow..."
               className="mt-2"
             />
           </div>

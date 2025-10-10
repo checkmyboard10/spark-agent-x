@@ -91,7 +91,7 @@ export interface AgentNodeData {
   color?: string;
 }
 
-// Variável do fluxo
+// Variável do flow
 export interface FlowVariable {
   name: string;
   type: VariableType;

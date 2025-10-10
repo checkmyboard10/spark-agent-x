@@ -56,7 +56,7 @@ export const FlowSettings = ({
           <CardTitle>Configurações do Editor</CardTitle>
         </div>
         <CardDescription>
-          Personalize a aparência e comportamento do editor de fluxos
+          Personalize a aparência e comportamento do editor de flows
         </CardDescription>
       </CardHeader>
 
@@ -210,7 +210,7 @@ export const FlowSettings = ({
           </div>
           
           <p className="text-xs text-muted-foreground">
-            Importe ou exporte o fluxo no formato JSON
+            Importe ou exporte o flow no formato JSON
           </p>
         </div>
       </CardContent>

@@ -57,7 +57,7 @@ export const FlowToolbar = ({
             value={flowName}
             onChange={(e) => onNameChange(e.target.value)}
             className="w-64 font-semibold"
-            placeholder="Digite o nome do fluxo..."
+            placeholder="Digite o nome do flow..."
             maxLength={100}
           />
           <div className="flex items-center justify-between px-1">
