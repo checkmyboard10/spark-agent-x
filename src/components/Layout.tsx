@@ -31,7 +31,7 @@ const navItems = [
   { path: "/clients", label: "Clientes", icon: Users },
   { path: "/agents", label: "Agentes IA", icon: Bot },
   { path: "/campaigns", label: "Campanhas", icon: Send },
-  { path: "/flow-editor", label: "Flows", icon: Workflow },
+  { path: "/flows", label: "Flows", icon: Workflow },
   { path: "/integrations", label: "Integrações", icon: Plug },
   { path: "/settings", label: "Configurações", icon: Settings },
 ];

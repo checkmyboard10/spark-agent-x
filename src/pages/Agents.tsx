@@ -551,7 +551,7 @@ export default function Agents() {
                           className="w-full"
                           onClick={() => {
                             setDialogOpen(false);
-                            navigate('/flow-editor');
+                            navigate('/flows');
                           }}
                         >
                           <Plus className="mr-2 h-4 w-4" />
