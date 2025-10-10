@@ -29,6 +29,7 @@ interface FlowCanvasProps {
   showGrid?: boolean;
   snapToGrid?: boolean;
   setNodes?: (nodes: Node[] | ((nodes: Node[]) => Node[])) => void;
+  onNodeDoubleClick?: (event: React.MouseEvent, node: Node) => void;
 }
 
 export const FlowCanvas = ({
@@ -42,6 +43,7 @@ export const FlowCanvas = ({
   showGrid = true,
   snapToGrid = false,
   setNodes,
+  onNodeDoubleClick,
 }: FlowCanvasProps) => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const reactFlowInstance = useRef<any>(null);
@@ -167,6 +169,7 @@ export const FlowCanvas = ({
           onDragOver={onDragOver}
           onDrop={onDrop}
           onPaneContextMenu={onPaneContextMenu}
+          onNodeDoubleClick={onNodeDoubleClick}
           nodeTypes={nodeTypes}
           fitView
           snapToGrid={snapToGrid}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Node } from '@xyflow/react';
 import { FlowToolbar } from '@/components/flow/FlowToolbar';
 import { FlowSidebar } from '@/components/flow/FlowSidebar';
 import { FlowCanvasWrapper } from '@/components/flow/FlowCanvas';
@@ -11,6 +12,7 @@ import { FlowSelectionToolbar } from '@/components/flow/FlowSelectionToolbar';
 import { FlowQuickActions } from '@/components/flow/FlowQuickActions';
 import { FlowSearchPanel } from '@/components/flow/FlowSearchPanel';
 import { FlowStatsCard } from '@/components/flow/FlowStatsCard';
+import { NodeEditDialog } from '@/components/flow/NodeEditDialog';
 import { useFlowEditor } from '@/hooks/useFlowEditor';
 import { useFlowSelection } from '@/hooks/useFlowSelection';
 import { autoLayout, validateFlow, getNodeStats } from '@/lib/flowHelpers';
@@ -26,6 +28,8 @@ const FlowEditor = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [showGrid, setShowGrid] = useState(true);
   const [snapToGrid, setSnapToGrid] = useState(false);
+  const [editingNode, setEditingNode] = useState<Node | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const navigate = useNavigate();
   
   if (!agentId) {
@@ -105,6 +109,22 @@ const FlowEditor = () => {
 
   const handleFocusNode = (nodeId: string) => {
     setNodes(nodes.map(n => ({ ...n, selected: n.id === nodeId })));
+  };
+
+  const handleNodeDoubleClick = (event: React.MouseEvent, node: Node) => {
+    event.preventDefault();
+    setEditingNode(node);
+    setDialogOpen(true);
+  };
+
+  const handleSaveNode = (nodeId: string, data: any) => {
+    setNodes((nds) =>
+      nds.map((n) =>
+        n.id === nodeId
+          ? { ...n, data: { ...n.data, ...data } }
+          : n
+      )
+    );
   };
 
   const validation = validateFlow(nodes, edges);
@@ -192,6 +212,7 @@ const FlowEditor = () => {
             showGrid={showGrid}
             snapToGrid={snapToGrid}
             setNodes={setNodes}
+            onNodeDoubleClick={handleNodeDoubleClick}
           />
 
           {/* Status Bar */}
@@ -281,6 +302,14 @@ const FlowEditor = () => {
           </div>
         </div>
       </div>
+
+      {/* Node Edit Dialog */}
+      <NodeEditDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        node={editingNode}
+        onSave={handleSaveNode}
+      />
     </div>
   );
 };
