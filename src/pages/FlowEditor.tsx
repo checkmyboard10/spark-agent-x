@@ -176,8 +176,8 @@ const FlowEditor = () => {
             </div>
           )}
 
-          {/* Stats Card */}
-          <div className="absolute bottom-20 left-4 z-10">
+          {/* Stats Card - Moved to right side */}
+          <div className="absolute bottom-4 right-4 z-10 w-80">
             <FlowStatsCard nodes={nodes} edges={edges} />
           </div>
 
