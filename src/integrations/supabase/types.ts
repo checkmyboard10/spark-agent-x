@@ -147,6 +147,53 @@ export type Database = {
           },
         ]
       }
+      agent_knowledge_base: {
+        Row: {
+          agent_id: string
+          content_preview: string | null
+          created_at: string
+          extracted_content: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          agent_id: string
+          content_preview?: string | null
+          created_at?: string
+          extracted_content?: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string
+          content_preview?: string | null
+          created_at?: string
+          extracted_content?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_knowledge_base_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: true
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agents: {
         Row: {
           active: boolean | null

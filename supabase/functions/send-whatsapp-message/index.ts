@@ -28,20 +28,33 @@ serve(async (req) => {
       throw new Error('Conversation ID and content are required');
     }
 
-    // Get agent settings for humanization
+    // Get agent settings and knowledge base
     let typingDelay = 1500;
     let humanizationEnabled = true;
+    let knowledgeContent = '';
 
     if (agentId) {
       const { data: agent } = await supabaseClient
         .from('agents')
-        .select('typing_delay_ms, humanization_enabled')
+        .select('typing_delay_ms, humanization_enabled, prompt')
         .eq('id', agentId)
         .single();
 
       if (agent) {
         typingDelay = agent.typing_delay_ms || 1500;
         humanizationEnabled = agent.humanization_enabled !== false;
+      }
+
+      // Fetch knowledge base for this agent
+      const { data: knowledge } = await supabaseClient
+        .from('agent_knowledge_base')
+        .select('extracted_content')
+        .eq('agent_id', agentId)
+        .maybeSingle();
+
+      if (knowledge?.extracted_content) {
+        knowledgeContent = knowledge.extracted_content;
+        console.log('Knowledge base loaded for agent:', agentId);
       }
     }
 

@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Bot, MoreVertical, Pencil, Trash2, GitBranch } from "lucide-react";
+import { Plus, Bot, MoreVertical, Pencil, Trash2, GitBranch, FileText, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { usePermissions } from "@/hooks/usePermissions";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -42,6 +44,18 @@ interface Agent {
   flow_enabled?: boolean;
   active_flow_id?: string | null;
   clients?: { name: string };
+  has_knowledge?: boolean;
+}
+
+interface KnowledgeFile {
+  id: string;
+  agent_id: string;
+  file_name: string;
+  file_path: string;
+  file_type: string;
+  file_size: number;
+  content_preview: string;
+  created_at: string;
 }
 
 interface Client {
@@ -51,11 +65,15 @@ interface Client {
 
 export default function Agents() {
   const navigate = useNavigate();
+  const { permissions } = usePermissions();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
+  const [knowledgeFile, setKnowledgeFile] = useState<KnowledgeFile | null>(null);
+  const [uploadingKnowledge, setUploadingKnowledge] = useState(false);
+  const [loadingKnowledge, setLoadingKnowledge] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     client_id: "",
@@ -87,7 +105,11 @@ export default function Agents() {
       const [agentsResult, clientsResult] = await Promise.all([
         supabase
           .from("agents")
-          .select("*, clients(name)")
+          .select(`
+            *, 
+            clients(name),
+            agent_knowledge_base!agent_knowledge_base_agent_id_fkey(id)
+          `)
           .order("created_at", { ascending: false }),
         supabase
           .from("clients")
@@ -100,7 +122,13 @@ export default function Agents() {
       if (agentsResult.error) throw agentsResult.error;
       if (clientsResult.error) throw clientsResult.error;
 
-      setAgents(agentsResult.data || []);
+      // Adicionar flag has_knowledge
+      const agentsWithKnowledge = (agentsResult.data || []).map((agent: any) => ({
+        ...agent,
+        has_knowledge: agent.agent_knowledge_base && agent.agent_knowledge_base.length > 0
+      }));
+
+      setAgents(agentsWithKnowledge);
       setClients(clientsResult.data || []);
     } catch (error: any) {
       toast.error("Erro ao carregar dados");
@@ -167,7 +195,7 @@ export default function Agents() {
     }
   };
 
-  const openEditDialog = (agent: Agent) => {
+  const openEditDialog = async (agent: Agent) => {
     setEditingAgent(agent);
     setFormData({
       name: agent.name,
@@ -177,7 +205,105 @@ export default function Agents() {
       humanization_enabled: agent.humanization_enabled,
       flow_enabled: agent.flow_enabled || false,
     });
+    await loadKnowledgeFile(agent.id);
     setDialogOpen(true);
+  };
+
+  const loadKnowledgeFile = async (agentId: string) => {
+    setLoadingKnowledge(true);
+    const { data, error } = await supabase
+      .from('agent_knowledge_base')
+      .select('*')
+      .eq('agent_id', agentId)
+      .maybeSingle();
+    
+    if (!error && data) {
+      setKnowledgeFile(data);
+    } else {
+      setKnowledgeFile(null);
+    }
+    setLoadingKnowledge(false);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingAgent) return;
+    
+    // Validar tamanho (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Arquivo muito grande! Máximo 10MB.');
+      return;
+    }
+    
+    // Validar tipo
+    const allowedTypes = ['.pdf', '.doc', '.docx', '.txt'];
+    const ext = '.' + file.name.split('.').pop()?.toLowerCase();
+    if (!allowedTypes.includes(ext)) {
+      toast.error('Tipo de arquivo não suportado!');
+      return;
+    }
+    
+    setUploadingKnowledge(true);
+    
+    try {
+      // Converter para base64
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      
+      reader.onload = async () => {
+        const base64 = reader.result as string;
+        
+        // Chamar edge function
+        const { data, error } = await supabase.functions.invoke('process-knowledge-document', {
+          body: {
+            agentId: editingAgent.id,
+            file: base64,
+            fileName: file.name,
+            fileType: ext.replace('.', ''),
+            fileSize: file.size
+          }
+        });
+        
+        if (error) throw error;
+        
+        toast.success('Documento adicionado com sucesso!');
+        await loadKnowledgeFile(editingAgent.id);
+        // Limpar input
+        e.target.value = '';
+      };
+    } catch (error: any) {
+      console.error('Error uploading knowledge:', error);
+      toast.error('Erro ao processar documento');
+    } finally {
+      setUploadingKnowledge(false);
+    }
+  };
+
+  const handleDeleteKnowledge = async () => {
+    if (!knowledgeFile) return;
+    
+    if (!confirm('Tem certeza que deseja remover este documento?')) return;
+    
+    try {
+      // Deletar do Storage
+      await supabase.storage
+        .from('agent-knowledge')
+        .remove([knowledgeFile.file_path]);
+      
+      // Deletar do banco
+      const { error } = await supabase
+        .from('agent_knowledge_base')
+        .delete()
+        .eq('id', knowledgeFile.id);
+      
+      if (error) throw error;
+      
+      setKnowledgeFile(null);
+      toast.success('Documento removido!');
+    } catch (error: any) {
+      console.error('Error deleting knowledge:', error);
+      toast.error('Erro ao remover documento');
+    }
   };
 
   const resetForm = () => {
@@ -336,6 +462,89 @@ export default function Agents() {
                   }
                 />
               </div>
+
+              {/* Base de Conhecimento Section */}
+              {editingAgent && (
+                <div className="space-y-4 border-t pt-4 mt-4">
+                  <div>
+                    <Label className="text-base font-semibold">📚 Base de Conhecimento</Label>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Adicione um documento (PDF, Word, TXT) para enriquecer o conhecimento deste agente (máx. 10MB)
+                    </p>
+                    
+                    {!knowledgeFile ? (
+                      <div className="border-2 border-dashed rounded-lg p-6 text-center">
+                        <Input 
+                          type="file" 
+                          accept=".pdf,.doc,.docx,.txt"
+                          onChange={handleFileUpload}
+                          disabled={uploadingKnowledge || !permissions.canEdit}
+                          className="hidden"
+                          id="knowledge-upload"
+                        />
+                        <Label 
+                          htmlFor="knowledge-upload" 
+                          className={`cursor-pointer ${!permissions.canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-2" />
+                          <p className="text-sm font-medium">
+                            {permissions.canEdit ? 'Clique para adicionar documento' : 'Sem permissão para adicionar'}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {permissions.canEdit ? 'PDF, Word ou TXT (máx. 10MB)' : 'Apenas admins e moderators'}
+                          </p>
+                        </Label>
+                      </div>
+                    ) : (
+                      <Card>
+                        <CardContent className="pt-4">
+                          <div className="flex items-start gap-3">
+                            <FileText className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{knowledgeFile.file_name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {knowledgeFile.file_type.toUpperCase()} • {(knowledgeFile.file_size / 1024 / 1024).toFixed(2)} MB
+                              </p>
+                              
+                              {knowledgeFile.content_preview && (
+                                <div className="mt-3 p-3 bg-muted rounded-md">
+                                  <p className="text-xs text-muted-foreground mb-1">Preview do conteúdo:</p>
+                                  <p className="text-xs line-clamp-3">{knowledgeFile.content_preview}</p>
+                                </div>
+                              )}
+                            </div>
+                            
+                            {permissions.canEdit && (
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={handleDeleteKnowledge}
+                                disabled={uploadingKnowledge}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                    
+                    {uploadingKnowledge && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span className="text-xs text-muted-foreground">Processando documento...</span>
+                      </div>
+                    )}
+
+                    {!permissions.canEdit && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Apenas admins e moderators podem modificar a base de conhecimento
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-2 pt-4">
                 <Button type="button" variant="outline" onClick={closeDialog}>
                   Cancelar
@@ -390,7 +599,7 @@ export default function Agents() {
                     <Bot className="h-5 w-5 text-primary" />
                     <CardTitle className="text-lg">{agent.name}</CardTitle>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <span
                       className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getTypeBadgeColor(
                         agent.type
@@ -398,6 +607,12 @@ export default function Agents() {
                     >
                       {getTypeLabel(agent.type)}
                     </span>
+                    {agent.has_knowledge && (
+                      <Badge variant="secondary" className="gap-1">
+                        <FileText className="h-3 w-3" />
+                        Com base de conhecimento
+                      </Badge>
+                    )}
                     {agent.active ? (
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
                         Ativo
