@@ -23,7 +23,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const FlowEditor = () => {
-  const { agentId, flowId } = useParams<{ agentId: string; flowId?: string }>();
+  const { flowId } = useParams<{ flowId: string }>();
   const [selectedExecutionId, setSelectedExecutionId] = useState<string | null>(null);
   const [showSearch, setShowSearch] = useState(false);
   const [showGrid, setShowGrid] = useState(true);
@@ -32,8 +32,8 @@ const FlowEditor = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const navigate = useNavigate();
   
-  if (!agentId) {
-    return <div>Agent ID não fornecido</div>;
+  if (!flowId) {
+    return <div>Flow ID não fornecido</div>;
   }
 
   const {
@@ -57,7 +57,7 @@ const FlowEditor = () => {
     pasteNodes,
     duplicateSelectedNodes,
     deleteSelectedNodes,
-  } = useFlowEditor(agentId, flowId);
+  } = useFlowEditor(flowId);
 
   const selection = useFlowSelection({ nodes, setNodes });
 
@@ -152,7 +152,6 @@ const FlowEditor = () => {
         onActiveToggle={setIsActive}
         onSave={saveFlow}
         onAutoLayout={handleAutoLayout}
-        agentId={agentId}
       />
 
       <div className="flex flex-1 overflow-hidden">
@@ -286,7 +285,7 @@ const FlowEditor = () => {
                 <TabsTrigger value="history">Histórico</TabsTrigger>
               </TabsList>
               <TabsContent value="test" className="h-[calc(100%-40px)] overflow-auto">
-                {flowId && <FlowTestPanel flowId={flowId} agentId={agentId} />}
+                {flowId && <FlowTestPanel flowId={flowId} />}
               </TabsContent>
               <TabsContent value="history" className="h-[calc(100%-40px)] overflow-auto">
                 {flowId && selectedExecutionId ? (

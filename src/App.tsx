@@ -34,8 +34,7 @@ const App = () => (
           <Route path="/integrations" element={<Layout><Integrations /></Layout>} />
           <Route path="/settings" element={<Layout><Settings /></Layout>} />
           <Route path="/flows" element={<Layout><Flows /></Layout>} />
-          <Route path="/flows/editor/:agentId" element={<FlowEditor />} />
-          <Route path="/flows/editor/:agentId/:flowId" element={<FlowEditor />} />
+          <Route path="/flows/editor/:flowId" element={<FlowEditor />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

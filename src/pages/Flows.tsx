@@ -41,7 +41,7 @@ const Flows = () => {
 
       if (!profile) throw new Error("Profile not found");
 
-      // Build query
+      // Build query with direct agency_id filter
       let query = supabase
         .from("agent_flows")
         .select(`
@@ -52,21 +52,19 @@ const Flows = () => {
             client_id,
             clients (
               id,
-              name,
-              agency_id
+              name
             )
           )
         `)
+        .eq("agency_id", profile.agency_id)
         .order("updated_at", { ascending: false });
 
       const { data, error } = await query;
 
       if (error) throw error;
 
-      // Filter by agency and apply client-side filters
-      let filtered = (data || []).filter((flow: any) => 
-        flow.agents?.clients?.agency_id === profile.agency_id
-      );
+      // Apply client-side filters
+      let filtered = data || [];
 
       // Apply search filter
       if (filters.search) {
@@ -116,23 +114,11 @@ const Flows = () => {
 
       const { data: allFlows } = await supabase
         .from("agent_flows")
-        .select(`
-          *,
-          agents (
-            id,
-            client_id,
-            clients (
-              agency_id
-            )
-          )
-        `);
+        .select("*")
+        .eq("agency_id", profile.agency_id);
 
-      const agencyFlows = (allFlows || []).filter((flow: any) => 
-        flow.agents?.clients?.agency_id === profile.agency_id
-      );
-
-      const total = agencyFlows.length;
-      const active = agencyFlows.filter((f: any) => f.is_active).length;
+      const total = allFlows?.length || 0;
+      const active = allFlows?.filter((f: any) => f.is_active).length || 0;
       
       // Count flows linked to agents (where agent has active_flow_id set to this flow)
       const { data: agents } = await supabase
@@ -143,8 +129,8 @@ const Flows = () => {
 
       const linked = agents?.length || 0;
 
-      const lastCreated = agencyFlows.length > 0 
-        ? new Date(agencyFlows[0].created_at)
+      const lastCreated = allFlows && allFlows.length > 0 
+        ? new Date(allFlows[0].created_at)
         : null;
 
       return { total, active, linked, lastCreated };
@@ -170,7 +156,19 @@ const Flows = () => {
 
   const handleDuplicate = async (flow: any) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("agency_id")
+        .eq("id", user.id)
+        .single();
+
+      if (!profile) throw new Error("Profile not found");
+
       const { error } = await supabase.from("agent_flows").insert({
+        agency_id: profile.agency_id,
         agent_id: flow.agent_id,
         name: `${flow.name} (Cópia)`,
         description: flow.description,

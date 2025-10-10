@@ -164,7 +164,7 @@ export default function Dashboard() {
         
         <Card className="shadow-card">
           <CardHeader>
-            <CardTitle>Bem-vindo ao AI WhatsApp SaaS</CardTitle>
+            <CardTitle>Bem-vindo ao Alic.ia</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground text-sm">

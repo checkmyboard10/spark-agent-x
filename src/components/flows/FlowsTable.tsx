@@ -117,11 +117,22 @@ export const FlowsTable = ({
                     <span className="text-muted-foreground">-</span>
                   )}
                 </TableCell>
-                <TableCell>
-                  {flow.agents?.name || (
-                    <span className="text-muted-foreground">-</span>
-                  )}
-                </TableCell>
+              <TableCell>
+                {flow.agents ? (
+                  <div>
+                    <Badge variant="outline">{flow.agents.name}</Badge>
+                    {flow.agents.clients && (
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {flow.agents.clients.name}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <span className="text-xs text-muted-foreground italic">
+                    Não vinculado
+                  </span>
+                )}
+              </TableCell>
                 <TableCell>
                   {format(new Date(flow.updated_at), "dd/MM/yyyy HH:mm", {
                     locale: ptBR,
@@ -146,7 +157,7 @@ export const FlowsTable = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => navigate(`/flows/editor/${flow.agent_id}/${flow.id}`)}
+                      onClick={() => navigate(`/flows/editor/${flow.id}`)}
                       title="Editar flow"
                     >
                       <Edit className="h-4 w-4" />

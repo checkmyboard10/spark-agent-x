@@ -35,17 +35,16 @@ export const CreateFlowDialog = ({
   onSuccess,
 }: CreateFlowDialogProps) => {
   const navigate = useNavigate();
-  const [creating, setCreating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    clientId: "",
-    agentId: "",
+    agentId: "", // Optional
   });
 
-  // Fetch clients
-  const { data: clients = [] } = useQuery({
-    queryKey: ["clients"],
+  // Fetch agents for optional linking
+  const { data: agents = [] } = useQuery({
+    queryKey: ["agents-for-flows"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
@@ -59,31 +58,23 @@ export const CreateFlowDialog = ({
       if (!profile) return [];
 
       const { data } = await supabase
-        .from("clients")
-        .select("id, name")
-        .eq("agency_id", profile.agency_id)
-        .order("name");
-
-      return data || [];
-    },
-    enabled: open,
-  });
-
-  // Fetch agents for selected client
-  const { data: agents = [] } = useQuery({
-    queryKey: ["agents", formData.clientId],
-    queryFn: async () => {
-      if (!formData.clientId) return [];
-
-      const { data } = await supabase
         .from("agents")
-        .select("id, name")
-        .eq("client_id", formData.clientId)
+        .select(`
+          id,
+          name,
+          clients (
+            id,
+            name,
+            agency_id
+          )
+        `)
+        .eq("clients.agency_id", profile.agency_id)
         .order("name");
 
-      return data || [];
+      return (data || []).filter((agent: any) => 
+        agent.clients?.agency_id === profile.agency_id
+      );
     },
-    enabled: !!formData.clientId && open,
   });
 
   const handleCreate = async () => {
@@ -92,18 +83,25 @@ export const CreateFlowDialog = ({
       return;
     }
 
-    if (!formData.agentId) {
-      toast.error("Selecione um agente para o flow");
-      return;
-    }
-
-    setCreating(true);
+    setIsSubmitting(true);
     try {
-      // Create flow with initial start node
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("agency_id")
+        .eq("id", user.id)
+        .single();
+
+      if (!profile) throw new Error("Profile not found");
+
+      // Create initial flow with start node
       const { data: newFlow, error } = await supabase
         .from("agent_flows")
         .insert({
-          agent_id: formData.agentId,
+          agency_id: profile.agency_id,
+          agent_id: formData.agentId || null, // OPTIONAL
           name: formData.name,
           description: formData.description || null,
           nodes: [
@@ -124,24 +122,19 @@ export const CreateFlowDialog = ({
       if (error) throw error;
 
       toast.success("Flow criado com sucesso!");
-      onSuccess();
-      onOpenChange(false);
       
       // Reset form
-      setFormData({
-        name: "",
-        description: "",
-        clientId: "",
-        agentId: "",
-      });
+      setFormData({ name: "", description: "", agentId: "" });
+      onOpenChange(false);
+      onSuccess();
 
       // Navigate to editor
-      navigate(`/flows/editor/${formData.agentId}/${newFlow.id}`);
+      navigate(`/flows/editor/${newFlow.id}`);
     } catch (error) {
       console.error("Error creating flow:", error);
       toast.error("Erro ao criar flow");
     } finally {
-      setCreating(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -155,91 +148,65 @@ export const CreateFlowDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          <div>
+        <div className="space-y-4">
+          <div className="space-y-2">
             <Label htmlFor="name">Nome do Flow *</Label>
             <Input
               id="name"
-              placeholder="Ex: Flow de Boas-vindas"
+              placeholder="Ex: Atendimento Inicial"
               value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             />
           </div>
 
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="description">Descrição</Label>
             <Textarea
               id="description"
-              placeholder="Descreva o propósito deste flow..."
+              placeholder="Descreva o objetivo deste flow..."
               value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={3}
             />
           </div>
 
-          <div>
-            <Label htmlFor="client">Cliente *</Label>
-            <Select
-              value={formData.clientId}
-              onValueChange={(value) =>
-                setFormData({ ...formData, clientId: value, agentId: "" })
-              }
-            >
-              <SelectTrigger id="client">
-                <SelectValue placeholder="Selecione o cliente" />
-              </SelectTrigger>
-              <SelectContent>
-                {clients.map((client) => (
-                  <SelectItem key={client.id} value={client.id}>
-                    {client.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label htmlFor="agent">Agente *</Label>
+          <div className="space-y-2">
+            <Label htmlFor="agent">Vincular a um Agente (Opcional)</Label>
             <Select
               value={formData.agentId}
-              onValueChange={(value) =>
-                setFormData({ ...formData, agentId: value })
-              }
-              disabled={!formData.clientId}
+              onValueChange={(value) => setFormData({ ...formData, agentId: value })}
             >
-              <SelectTrigger id="agent">
-                <SelectValue placeholder="Selecione o agente" />
+              <SelectTrigger>
+                <SelectValue placeholder="Nenhum agente (pode vincular depois)" />
               </SelectTrigger>
               <SelectContent>
-                {agents.map((agent) => (
+                {agents.map((agent: any) => (
                   <SelectItem key={agent.id} value={agent.id}>
-                    {agent.name}
+                    {agent.name} - {agent.clients?.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {!formData.clientId && (
-              <p className="text-xs text-muted-foreground mt-1">
-                Selecione um cliente primeiro
-              </p>
-            )}
+            <p className="text-xs text-muted-foreground">
+              Você pode criar um flow sem vínculo e associá-lo a um agente depois
+            </p>
           </div>
         </div>
 
         <DialogFooter>
           <Button
+            type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
-            disabled={creating}
+            disabled={isSubmitting}
           >
             Cancelar
           </Button>
-          <Button onClick={handleCreate} disabled={creating}>
-            {creating ? "Criando..." : "Criar Flow"}
+          <Button
+            onClick={handleCreate}
+            disabled={isSubmitting || !formData.name.trim()}
+          >
+            {isSubmitting ? "Criando..." : "Criar Flow"}
           </Button>
         </DialogFooter>
       </DialogContent>

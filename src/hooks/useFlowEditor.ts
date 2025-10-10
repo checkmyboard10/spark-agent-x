@@ -44,7 +44,7 @@ const generateUniqueName = async (agentId: string): Promise<string> => {
   return `Flow ${maxNum + 1}`;
 };
 
-export const useFlowEditor = (agentId: string, flowId?: string) => {
+export const useFlowEditor = (flowId?: string) => {
   const navigate = useNavigate();
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
@@ -106,8 +106,21 @@ export const useFlowEditor = (agentId: string, flowId?: string) => {
 
     setSaving(true);
     try {
+      // Get user's agency_id
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("agency_id")
+        .eq("id", user.id)
+        .single();
+
+      if (!profile) throw new Error("Profile not found");
+
       const flowData = {
-        agent_id: agentId,
+        agency_id: profile.agency_id,
+        agent_id: agentId || null,
         name: flowName,
         description: flowDescription,
         nodes: nodes as any,
@@ -130,7 +143,7 @@ export const useFlowEditor = (agentId: string, flowId?: string) => {
         const { data: existing } = await supabase
           .from('agent_flows')
           .select('id')
-          .eq('agent_id', agentId)
+          .eq('agency_id', profile.agency_id)
           .eq('name', flowName)
           .maybeSingle();
         
@@ -150,7 +163,7 @@ export const useFlowEditor = (agentId: string, flowId?: string) => {
         if (error) throw error;
         setLastSaved(new Date());
         toast.success('✓ Flow criado');
-        navigate(`/flows/${agentId}/${data.id}`);
+        navigate(`/flows/editor/${data.id}`);
       }
     } catch (error: any) {
       console.error('Error saving flow:', error);
@@ -158,7 +171,7 @@ export const useFlowEditor = (agentId: string, flowId?: string) => {
     } finally {
       setSaving(false);
     }
-  }, [agentId, flowId, flowName, flowDescription, nodes, edges, isActive, navigate]);
+  }, [flowId, flowName, flowDescription, nodes, edges, isActive, navigate]);
 
   // Handle node changes
   const onNodesChange = useCallback((changes: NodeChange[]) => {

@@ -8,59 +8,65 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 220 26% 14%;
+    /* Backgrounds - Premium dark tones */
+    --background: 222 27% 12%;
     --foreground: 210 40% 98%;
 
-    --card: 220 20% 16%;
+    --card: 222 24% 15%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 220 20% 16%;
+    --popover: 222 24% 15%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 160 84% 39%;
+    /* Primary - Alic.ia Green */
+    --primary: 155 85% 45%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 160 84% 55%;
+    --primary-glow: 155 85% 60%;
 
-    --secondary: 186 100% 46%;
+    /* Secondary - Tech Blue */
+    --secondary: 208 95% 52%;
     --secondary-foreground: 0 0% 100%;
     
-    --success: 142 76% 36%;
+    /* Success */
+    --success: 155 85% 45%;
     --success-foreground: 0 0% 100%;
 
-    --muted: 217 19% 27%;
-    --muted-foreground: 215 20% 65%;
+    /* Premium Neutrals */
+    --muted: 222 20% 25%;
+    --muted-foreground: 215 18% 68%;
 
-    --accent: 186 100% 46%;
+    --accent: 208 95% 52%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 85% 58%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 217 19% 27%;
-    --input: 217 19% 27%;
-    --ring: 160 84% 39%;
+    --border: 222 20% 22%;
+    --input: 222 20% 22%;
+    --ring: 155 85% 45%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 220 26% 14%;
+    /* Sidebar - Consistent tones */
+    --sidebar-background: 222 27% 12%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 160 84% 39%;
+    --sidebar-primary: 155 85% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 19% 27%;
+    --sidebar-accent: 222 20% 22%;
     --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 19% 20%;
-    --sidebar-ring: 160 84% 39%;
+    --sidebar-border: 222 20% 18%;
+    --sidebar-ring: 155 85% 45%;
 
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(160 84% 39%), hsl(160 84% 55%));
-    --gradient-secondary: linear-gradient(135deg, hsl(186 100% 46%), hsl(186 100% 56%));
-    --gradient-hero: linear-gradient(135deg, hsl(160 84% 39%), hsl(186 100% 46%));
-    --gradient-card: linear-gradient(180deg, hsl(220 20% 18%), hsl(220 20% 16%));
+    /* Gradients - Green + Blue Alic.ia */
+    --gradient-primary: linear-gradient(135deg, hsl(155 85% 45%), hsl(155 85% 60%));
+    --gradient-secondary: linear-gradient(135deg, hsl(208 95% 52%), hsl(208 95% 62%));
+    --gradient-hero: linear-gradient(135deg, hsl(155 85% 45%), hsl(208 95% 52%));
+    --gradient-card: linear-gradient(180deg, hsl(222 24% 17%), hsl(222 24% 15%));
 
-    /* Shadows */
-    --shadow-glow: 0 0 40px hsla(160, 84%, 55%, 0.3);
-    --shadow-card: 0 10px 30px -10px hsla(0, 0%, 0%, 0.4);
-    --shadow-elegant: 0 20px 60px -20px hsla(0, 0%, 0%, 0.5);
+    /* Shadows - Premium elegant */
+    --shadow-glow: 0 0 40px hsla(155, 85%, 60%, 0.25);
+    --shadow-card: 0 12px 40px -12px hsla(0, 0%, 0%, 0.5);
+    --shadow-elegant: 0 24px 80px -24px hsla(0, 0%, 0%, 0.6);
   }
 }
 

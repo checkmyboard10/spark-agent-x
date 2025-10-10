@@ -11,10 +11,9 @@ import { useFlowExecution } from '@/hooks/useFlowExecution';
 
 interface FlowTestPanelProps {
   flowId: string;
-  agentId: string;
 }
 
-export const FlowTestPanel = ({ flowId, agentId }: FlowTestPanelProps) => {
+export const FlowTestPanel = ({ flowId }: FlowTestPanelProps) => {
   const [testVariables, setTestVariables] = useState({
     'contact.name': 'João Silva',
     'contact.phone': '5511999999999',
