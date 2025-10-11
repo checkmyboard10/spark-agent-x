@@ -13,7 +13,6 @@ interface FlowToolbarProps {
   onActiveToggle: (active: boolean) => void;
   onSave: () => void;
   onAutoLayout: () => void;
-  agentId: string;
   lastSaved?: Date | null;
 }
 
@@ -25,7 +24,6 @@ export const FlowToolbar = ({
   onActiveToggle,
   onSave,
   onAutoLayout,
-  agentId,
   lastSaved,
 }: FlowToolbarProps) => {
   const navigate = useNavigate();
@@ -45,7 +43,7 @@ export const FlowToolbar = ({
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate(`/agents`)}
+          onClick={() => navigate('/flows')}
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>

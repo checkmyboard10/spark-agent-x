@@ -21,11 +21,11 @@ interface FlowData {
 }
 
 // Generate unique flow name
-const generateUniqueName = async (agentId: string): Promise<string> => {
+const generateUniqueName = async (agencyId: string): Promise<string> => {
   const { data } = await supabase
     .from('agent_flows')
     .select('name')
-    .eq('agent_id', agentId)
+    .eq('agency_id', agencyId)
     .order('created_at', { ascending: false });
   
   if (!data || data.length === 0) {
@@ -58,9 +58,24 @@ export const useFlowEditor = (flowId?: string) => {
   // Load flow data
   const loadFlow = useCallback(async () => {
     if (!flowId) {
-      // Generate unique name for new flow
-      const uniqueName = await generateUniqueName(agentId);
-      setFlowName(uniqueName);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("agency_id")
+            .eq("id", user.id)
+            .single();
+          
+          if (profile) {
+            const uniqueName = await generateUniqueName(profile.agency_id);
+            setFlowName(uniqueName);
+          }
+        }
+      } catch (error) {
+        console.error('Error generating name:', error);
+        setFlowName('Novo Flow');
+      }
       
       // Initialize with a start node
       setNodes([{
@@ -120,7 +135,6 @@ export const useFlowEditor = (flowId?: string) => {
 
       const flowData = {
         agency_id: profile.agency_id,
-        agent_id: agentId || null,
         name: flowName,
         description: flowDescription,
         nodes: nodes as any,
