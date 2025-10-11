@@ -4,7 +4,7 @@ import { Play } from 'lucide-react';
 
 const StartNode = ({ data }: NodeProps) => {
   return (
-    <div className="px-6 py-4 shadow-lg rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 border-2 border-green-400 min-w-[180px]">
+    <div className="px-6 py-4 shadow-elegant rounded-lg bg-gradient-to-br from-[hsl(155,85%,45%)] to-[hsl(155,85%,60%)] border-2 border-[hsl(155,85%,60%)] min-w-[180px] transition-all duration-300 hover:shadow-glow">
       <div className="flex items-center gap-3">
         <div className="flex items-center justify-center w-8 h-8 bg-white/20 rounded-full">
           <Play className="w-4 h-4 text-white" />
@@ -17,7 +17,7 @@ const StartNode = ({ data }: NodeProps) => {
       <Handle
         type="source"
         position={Position.Bottom}
-        className="w-3 h-3 !bg-green-300 border-2 border-white"
+        className="w-3 h-3 !bg-[hsl(155,85%,60%)] border-2 border-white"
       />
     </div>
   );

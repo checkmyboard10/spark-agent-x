@@ -34,22 +34,22 @@ export const FlowsStats = ({ stats, isLoading }: FlowsStatsProps) => {
       icon: Network,
       label: "Total de Flows",
       value: stats?.total || 0,
-      color: "text-blue-500",
-      bgColor: "bg-blue-500/10",
+      color: "text-[hsl(155,85%,45%)]",
+      bgColor: "bg-[hsl(155,85%,45%)]/10",
     },
     {
       icon: CheckCircle,
       label: "Flows Ativos",
       value: stats?.active || 0,
-      color: "text-green-500",
-      bgColor: "bg-green-500/10",
+      color: "text-[hsl(155,85%,45%)]",
+      bgColor: "bg-[hsl(155,85%,45%)]/10",
     },
     {
       icon: Link2,
       label: "Flows Vinculados",
       value: stats?.linked || 0,
-      color: "text-purple-500",
-      bgColor: "bg-purple-500/10",
+      color: "text-[hsl(208,95%,52%)]",
+      bgColor: "bg-[hsl(208,95%,52%)]/10",
     },
     {
       icon: Calendar,
@@ -57,8 +57,8 @@ export const FlowsStats = ({ stats, isLoading }: FlowsStatsProps) => {
       value: stats?.lastCreated
         ? formatDistanceToNow(stats.lastCreated, { addSuffix: true, locale: ptBR })
         : "Nenhum",
-      color: "text-orange-500",
-      bgColor: "bg-orange-500/10",
+      color: "text-[hsl(208,95%,52%)]",
+      bgColor: "bg-[hsl(208,95%,52%)]/10",
     },
   ];
 
@@ -67,7 +67,7 @@ export const FlowsStats = ({ stats, isLoading }: FlowsStatsProps) => {
       {statCards.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <Card key={index} className="p-6">
+          <Card key={index} className="p-6 shadow-card hover:shadow-elegant transition-all duration-300">
             <div className={`${stat.bgColor} ${stat.color} w-12 h-12 rounded-lg flex items-center justify-center mb-3`}>
               <Icon className="h-6 w-6" />
             </div>

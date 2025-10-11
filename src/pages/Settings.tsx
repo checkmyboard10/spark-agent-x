@@ -10,16 +10,18 @@ import QuickRepliesSettings from "@/components/settings/QuickRepliesSettings";
 
 export default function Settings() {
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-8 md:p-16 space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Configurações</h1>
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-[hsl(155,85%,45%)] to-[hsl(208,95%,52%)] bg-clip-text text-transparent">
+          Configurações
+        </h1>
         <p className="text-muted-foreground mt-2">
           Gerencie as configurações da sua agência
         </p>
       </div>
 
       <Tabs defaultValue="appearance" className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-7 shadow-card rounded-xl">
           <TabsTrigger value="appearance" className="flex items-center gap-2">
             <Palette className="h-4 w-4" />
             Aparência

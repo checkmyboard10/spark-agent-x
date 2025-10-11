@@ -4,7 +4,7 @@ import { StopCircle } from 'lucide-react';
 
 const EndNode = ({ data }: NodeProps) => {
   return (
-    <div className="px-6 py-4 shadow-lg rounded-lg bg-gradient-to-br from-red-500 to-rose-600 border-2 border-red-400 min-w-[180px]">
+    <div className="px-6 py-4 shadow-elegant rounded-lg bg-gradient-to-br from-red-500 to-rose-600 border-2 border-red-400 min-w-[180px] transition-all duration-300 hover:scale-[1.02]">
       <Handle
         type="target"
         position={Position.Top}

@@ -29,10 +29,10 @@ export function ConversionFunnelCard({ data, isLoading }: ConversionFunnelCardPr
   }
 
   return (
-    <Card className="shadow-card">
+    <Card className="shadow-elegant rounded-2xl">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Filter className="h-5 w-5 text-primary" />
+          <Filter className="h-5 w-5 text-[hsl(155,85%,45%)]" />
           Funil de Conversão
         </CardTitle>
       </CardHeader>
@@ -49,7 +49,7 @@ export function ConversionFunnelCard({ data, isLoading }: ConversionFunnelCardPr
                 <span className="font-medium">Conversas Iniciadas</span>
                 <span className="text-muted-foreground">{data.total_conversations}</span>
               </div>
-              <Progress value={100} className="h-3" />
+              <Progress value={100} className="h-3 bg-[hsl(222,20%,25%)]" />
               <p className="text-xs text-muted-foreground">
                 100% das conversas do período
               </p>
@@ -89,10 +89,10 @@ export function ConversionFunnelCard({ data, isLoading }: ConversionFunnelCardPr
             <div className="pt-4 border-t">
               <p className="text-xs text-muted-foreground">
                 {data.response_rate >= 90 && (
-                  <span className="text-success">✓ Excelente taxa de resposta! Continue assim.</span>
+                  <span className="text-[hsl(155,85%,45%)] font-medium">✓ Excelente taxa de resposta! Continue assim.</span>
                 )}
                 {data.response_rate >= 70 && data.response_rate < 90 && (
-                  <span className="text-accent">→ Boa taxa de resposta. Há espaço para melhorias.</span>
+                  <span className="text-[hsl(208,95%,52%)]">→ Boa taxa de resposta. Há espaço para melhorias.</span>
                 )}
                 {data.response_rate < 70 && (
                   <span className="text-destructive">⚠ Taxa de resposta baixa. Configure mais agentes ou otimize os existentes.</span>

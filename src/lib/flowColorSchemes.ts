@@ -9,6 +9,22 @@ export interface ColorScheme {
 
 export const nodeColorSchemes: ColorScheme[] = [
   {
+    name: 'Alic.ia',
+    value: 'alicia',
+    gradient: 'from-[hsl(155,85%,45%)] to-[hsl(155,85%,60%)]',
+    border: 'border-[hsl(155,85%,60%)]',
+    bg: 'bg-[hsl(155,85%,45%)]/10',
+    text: 'text-white',
+  },
+  {
+    name: 'Azul Tech',
+    value: 'tech-blue',
+    gradient: 'from-[hsl(208,95%,52%)] to-[hsl(208,95%,62%)]',
+    border: 'border-[hsl(208,95%,52%)]',
+    bg: 'bg-[hsl(208,95%,52%)]/10',
+    text: 'text-white',
+  },
+  {
     name: 'Padrão',
     value: 'default',
     gradient: 'from-blue-500 to-blue-600',

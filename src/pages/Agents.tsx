@@ -97,12 +97,10 @@ export default function Agents() {
   }, []);
 
   useEffect(() => {
-    if (formData.client_id) {
-      loadAvailableFlows(formData.client_id);
-    } else {
-      setAvailableFlows([]);
+    if (dialogOpen) {
+      loadAvailableFlows();
     }
-  }, [formData.client_id]);
+  }, [dialogOpen]);
 
   const loadData = async () => {
     try {
@@ -155,13 +153,26 @@ export default function Agents() {
     }
   };
 
-  const loadAvailableFlows = async (clientId: string) => {
+  const loadAvailableFlows = async () => {
     try {
+      // Buscar agency_id do usuário
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("agency_id")
+        .eq("id", user.id)
+        .single();
+
+      if (!profile) return;
+
+      // Buscar TODOS os flows da agency (ativos ou não)
       const { data, error } = await supabase
         .from('agent_flows')
-        .select('id, name, description, agent_id, agents!inner(client_id)')
-        .eq('agents.client_id', clientId)
-        .eq('is_active', true);
+        .select('id, name, description, is_active')
+        .eq('agency_id', profile.agency_id)
+        .order('name');
       
       if (error) throw error;
       setAvailableFlows(data || []);
@@ -519,20 +530,39 @@ export default function Agents() {
                       </SelectTrigger>
                       <SelectContent>
                         {availableFlows.length === 0 ? (
-                          <SelectItem value="__none__" disabled>
-                            Nenhum flow disponível
-                          </SelectItem>
+                          <div className="p-4 text-center space-y-2">
+                            <p className="text-sm text-muted-foreground">
+                              Nenhum flow disponível ainda
+                            </p>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setDialogOpen(false);
+                                navigate('/flows');
+                              }}
+                            >
+                              <Plus className="mr-2 h-4 w-4" />
+                              Criar novo flow
+                            </Button>
+                          </div>
                         ) : (
-                          availableFlows.map((flow) => (
+                          availableFlows.map((flow: any) => (
                             <SelectItem key={flow.id} value={flow.id}>
-                              <div>
-                                <div className="font-medium">{flow.name}</div>
-                                {flow.description && (
-                                  <div className="text-xs text-muted-foreground">
-                                    {flow.description}
-                                  </div>
+                              <div className="flex items-center gap-2">
+                                <span>{flow.name}</span>
+                                {!flow.is_active && (
+                                  <Badge variant="outline" className="text-xs">
+                                    Inativo
+                                  </Badge>
                                 )}
                               </div>
+                              {flow.description && (
+                                <div className="text-xs text-muted-foreground mt-1">
+                                  {flow.description}
+                                </div>
+                              )}
                             </SelectItem>
                           ))
                         )}
@@ -727,7 +757,7 @@ export default function Agents() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {agents.map((agent) => (
-            <Card key={agent.id} className="hover:shadow-glow transition-all">
+            <Card key={agent.id} className="hover:shadow-glow transition-all shadow-card">
               <CardHeader className="flex flex-row items-start justify-between">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
@@ -758,12 +788,12 @@ export default function Agents() {
                       </span>
                     )}
                      {agent.flow_enabled ? (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[hsl(155,85%,45%)]/10 text-[hsl(155,85%,45%)]">
                         <GitBranch className="h-3 w-3 mr-1" />
                         Flow
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[hsl(208,95%,52%)]/10 text-[hsl(208,95%,52%)]">
                         <Bot className="h-3 w-3 mr-1" />
                         IA
                       </span>

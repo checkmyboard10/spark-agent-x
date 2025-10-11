@@ -87,7 +87,7 @@ export const FlowsTable = ({
 
   return (
     <>
-      <div className="border rounded-lg">
+      <div className="border rounded-lg shadow-card">
         <Table>
           <TableHeader>
             <TableRow>
@@ -105,9 +105,9 @@ export const FlowsTable = ({
                 <TableCell className="font-medium">
                   <div className="flex items-center gap-2">
                     {flow.is_active ? (
-                      <div className="h-2 w-2 rounded-full bg-green-500" />
+                      <div className="h-2 w-2 rounded-full bg-[hsl(155,85%,45%)] shadow-glow" />
                     ) : (
-                      <div className="h-2 w-2 rounded-full bg-gray-400" />
+                      <div className="h-2 w-2 rounded-full bg-[hsl(222,20%,25%)]" />
                     )}
                     {flow.name}
                   </div>
@@ -142,6 +142,7 @@ export const FlowsTable = ({
                   <Switch
                     checked={flow.is_active}
                     onCheckedChange={() => onToggleStatus(flow.id, flow.is_active)}
+                    className="data-[state=checked]:bg-[hsl(155,85%,45%)]"
                   />
                 </TableCell>
                 <TableCell>
