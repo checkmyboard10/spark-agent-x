@@ -41,12 +41,12 @@ const Flows = () => {
 
       if (!profile) throw new Error("Profile not found");
 
-      // Build query with direct agency_id filter
+      // ✅ Query otimizada com LEFT JOIN para incluir flows independentes
       let query = supabase
         .from("agent_flows")
         .select(`
           *,
-          agents (
+          agents!left (
             id,
             name,
             client_id,
@@ -56,45 +56,45 @@ const Flows = () => {
             )
           )
         `)
-        .eq("agency_id", profile.agency_id)
-        .order("updated_at", { ascending: false });
+        .eq("agency_id", profile.agency_id);
+
+      // ✅ Aplicar filtros NO BANCO quando possível
+      if (filters.search) {
+        query = query.ilike('name', `%${filters.search}%`);
+      }
+
+      if (filters.status !== "all") {
+        query = query.eq('is_active', filters.status === "active");
+      }
+
+      query = query.order("updated_at", { ascending: false });
 
       const { data, error } = await query;
-
       if (error) throw error;
 
-      // Apply client-side filters
       let filtered = data || [];
 
-      // Apply search filter
-      if (filters.search) {
-        filtered = filtered.filter((flow: any) =>
-          flow.name.toLowerCase().includes(filters.search.toLowerCase())
-        );
-      }
-
-      // Apply client filter
+      // Filtros client-side apenas para client/agent (devido complexidade do JOIN)
       if (filters.clientId && filters.clientId !== "all") {
-        filtered = filtered.filter((flow: any) => 
-          flow.agents?.client_id === filters.clientId
-        );
+        if (filters.clientId === "independent") {
+          filtered = filtered.filter((flow: any) => !flow.agents);
+        } else {
+          filtered = filtered.filter((flow: any) => 
+            flow.agents?.client_id === filters.clientId
+          );
+        }
       }
 
-      // Apply agent filter
       if (filters.agentId && filters.agentId !== "all") {
         filtered = filtered.filter((flow: any) => 
           flow.agent_id === filters.agentId
         );
       }
 
-      // Apply status filter
-      if (filters.status !== "all") {
-        const isActive = filters.status === "active";
-        filtered = filtered.filter((flow: any) => flow.is_active === isActive);
-      }
-
       return filtered;
     },
+    staleTime: 0,
+    refetchOnMount: true,
   });
 
   // Fetch stats

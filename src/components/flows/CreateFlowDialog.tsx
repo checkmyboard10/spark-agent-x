@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
@@ -35,6 +35,7 @@ export const CreateFlowDialog = ({
   onSuccess,
 }: CreateFlowDialogProps) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -123,13 +124,19 @@ export const CreateFlowDialog = ({
 
       toast.success("Flow criado com sucesso!");
       
+      // ✅ Invalidar cache ANTES de redirecionar
+      await queryClient.invalidateQueries({ queryKey: ["flows"] });
+      await queryClient.invalidateQueries({ queryKey: ["flow-stats"] });
+      
       // Reset form
       setFormData({ name: "", description: "", agentId: "" });
       onOpenChange(false);
       onSuccess();
 
-      // Navigate to editor
-      navigate(`/flows/editor/${newFlow.id}`);
+      // Dar tempo para queries atualizarem antes de redirecionar
+      setTimeout(() => {
+        navigate(`/flows/editor/${newFlow.id}`);
+      }, 100);
     } catch (error) {
       console.error("Error creating flow:", error);
       toast.error("Erro ao criar flow");

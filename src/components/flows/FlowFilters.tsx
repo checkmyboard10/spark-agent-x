@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { Search, Network } from "lucide-react";
 import { FlowFilters as FlowFiltersType } from "@/pages/Flows";
 
 interface FlowFiltersProps {
@@ -109,6 +109,12 @@ export const FlowFilters = ({ filters, onFiltersChange }: FlowFiltersProps) => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os clientes</SelectItem>
+              <SelectItem value="independent">
+                <div className="flex items-center gap-2">
+                  <Network className="h-4 w-4" />
+                  Flows Independentes
+                </div>
+              </SelectItem>
               {clients.map((client) => (
                 <SelectItem key={client.id} value={client.id}>
                   {client.name}

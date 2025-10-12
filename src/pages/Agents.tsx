@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Bot, MoreVertical, Pencil, Trash2, GitBranch, FileText, Loader2, ExternalLink } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Plus, Bot, FileText, Loader2, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { usePermissions } from "@/hooks/usePermissions";
 import { toast } from "sonner";
+import { AgentsTable } from "@/components/agents/AgentsTable";
 import {
   Dialog,
   DialogContent,
@@ -629,86 +630,98 @@ export default function Agents() {
               </div>
 
               {/* Base de Conhecimento Section */}
-              {editingAgent && (
-                <div className="space-y-4 border-t pt-4 mt-4">
-                  <div>
-                    <Label className="text-base font-semibold">📚 Base de Conhecimento</Label>
-                    <p className="text-xs text-muted-foreground mb-3">
-                      Adicione um documento (PDF, Word, TXT) para enriquecer o conhecimento deste agente (máx. 10MB)
-                    </p>
-                    
-                    {!knowledgeFile ? (
-                      <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                        <Input 
-                          type="file" 
-                          accept=".pdf,.doc,.docx,.txt"
-                          onChange={handleFileUpload}
-                          disabled={uploadingKnowledge || !permissions.canEdit}
-                          className="hidden"
-                          id="knowledge-upload"
-                        />
-                        <Label 
-                          htmlFor="knowledge-upload" 
-                          className={`cursor-pointer ${!permissions.canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                          <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-2" />
-                          <p className="text-sm font-medium">
-                            {permissions.canEdit ? 'Clique para adicionar documento' : 'Sem permissão para adicionar'}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {permissions.canEdit ? 'PDF, Word ou TXT (máx. 10MB)' : 'Apenas admins e moderators'}
-                          </p>
-                        </Label>
-                      </div>
-                    ) : (
-                      <Card>
-                        <CardContent className="pt-4">
-                          <div className="flex items-start gap-3">
-                            <FileText className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">{knowledgeFile.file_name}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {knowledgeFile.file_type.toUpperCase()} • {(knowledgeFile.file_size / 1024 / 1024).toFixed(2)} MB
-                              </p>
+              <div className="space-y-4 border-t pt-4 mt-4">
+                <div>
+                  <Label className="text-base font-semibold">📚 Base de Conhecimento</Label>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    {editingAgent 
+                      ? "Adicione um documento (PDF, Word, TXT) para enriquecer o conhecimento deste agente (máx. 10MB)"
+                      : "⚠️ Salve o agente primeiro para poder adicionar documentos à base de conhecimento"
+                    }
+                  </p>
+                  
+                  {editingAgent ? (
+                    <>
+                      {!knowledgeFile ? (
+                        <div className="border-2 border-dashed rounded-lg p-6 text-center">
+                          <Input 
+                            type="file" 
+                            accept=".pdf,.doc,.docx,.txt"
+                            onChange={handleFileUpload}
+                            disabled={uploadingKnowledge || !permissions.canEdit}
+                            className="hidden"
+                            id="knowledge-upload"
+                          />
+                          <Label 
+                            htmlFor="knowledge-upload" 
+                            className={`cursor-pointer ${!permissions.canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          >
+                            <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-2" />
+                            <p className="text-sm font-medium">
+                              {permissions.canEdit ? 'Clique para adicionar documento' : 'Sem permissão para adicionar'}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {permissions.canEdit ? 'PDF, Word ou TXT (máx. 10MB)' : 'Apenas admins e moderators'}
+                            </p>
+                          </Label>
+                        </div>
+                      ) : (
+                        <Card>
+                          <CardContent className="pt-4">
+                            <div className="flex items-start gap-3">
+                              <FileText className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate">{knowledgeFile.file_name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {knowledgeFile.file_type.toUpperCase()} • {(knowledgeFile.file_size / 1024 / 1024).toFixed(2)} MB
+                                </p>
+                                
+                                {knowledgeFile.content_preview && (
+                                  <div className="mt-3 p-3 bg-muted rounded-md">
+                                    <p className="text-xs text-muted-foreground mb-1">Preview do conteúdo:</p>
+                                    <p className="text-xs line-clamp-3">{knowledgeFile.content_preview}</p>
+                                  </div>
+                                )}
+                              </div>
                               
-                              {knowledgeFile.content_preview && (
-                                <div className="mt-3 p-3 bg-muted rounded-md">
-                                  <p className="text-xs text-muted-foreground mb-1">Preview do conteúdo:</p>
-                                  <p className="text-xs line-clamp-3">{knowledgeFile.content_preview}</p>
-                                </div>
+                              {permissions.canEdit && (
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={handleDeleteKnowledge}
+                                  disabled={uploadingKnowledge}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
                               )}
                             </div>
-                            
-                            {permissions.canEdit && (
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={handleDeleteKnowledge}
-                                disabled={uploadingKnowledge}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
-                    
-                    {uploadingKnowledge && (
-                      <div className="flex items-center gap-2 mt-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span className="text-xs text-muted-foreground">Processando documento...</span>
-                      </div>
-                    )}
+                          </CardContent>
+                        </Card>
+                      )}
+                      
+                      {uploadingKnowledge && (
+                        <div className="flex items-center gap-2 mt-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span className="text-xs text-muted-foreground">Processando documento...</span>
+                        </div>
+                      )}
 
-                    {!permissions.canEdit && (
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Apenas admins e moderators podem modificar a base de conhecimento
+                      {!permissions.canEdit && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Apenas admins e moderators podem modificar a base de conhecimento
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <div className="border-2 border-dashed rounded-lg p-6 text-center bg-muted/50">
+                      <FileText className="mx-auto h-12 w-12 text-muted-foreground/50 mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        Crie o agente primeiro para habilitar o upload de documentos
                       </p>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
 
               <div className="flex gap-2 pt-4">
                 <Button type="button" variant="outline" onClick={closeDialog}>
@@ -723,128 +736,25 @@ export default function Agents() {
         </Dialog>
       </div>
 
-      {loading && agents.length === 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <Card key={i} className="animate-pulse">
-              <CardHeader className="h-24 bg-muted" />
-              <CardContent className="h-32" />
-            </Card>
-          ))}
-        </div>
-      ) : clients.length === 0 ? (
+      {clients.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <p className="text-muted-foreground mb-4">
               Você precisa cadastrar clientes antes de criar agentes
             </p>
-            <Button onClick={() => window.location.href = "/clients"}>
+            <Button onClick={() => navigate("/clients")}>
               Ir para Clientes
             </Button>
           </CardContent>
         </Card>
-      ) : agents.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Bot className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground mb-4">Nenhum agente configurado</p>
-            <Button onClick={() => setDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Criar Primeiro Agente
-            </Button>
-          </CardContent>
-        </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {agents.map((agent) => (
-            <Card key={agent.id} className="hover:shadow-glow transition-all shadow-card">
-              <CardHeader className="flex flex-row items-start justify-between">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Bot className="h-5 w-5 text-primary" />
-                    <CardTitle className="text-lg">{agent.name}</CardTitle>
-                  </div>
-                  <div className="flex gap-2 flex-wrap">
-                    <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getTypeBadgeColor(
-                        agent.type
-                      )}`}
-                    >
-                      {getTypeLabel(agent.type)}
-                    </span>
-                    {agent.has_knowledge && (
-                      <Badge variant="secondary" className="gap-1">
-                        <FileText className="h-3 w-3" />
-                        Com base de conhecimento
-                      </Badge>
-                    )}
-                    {agent.active ? (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
-                        Ativo
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-                        Inativo
-                      </span>
-                    )}
-                     {agent.flow_enabled ? (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[hsl(155,85%,45%)]/10 text-[hsl(155,85%,45%)]">
-                        <GitBranch className="h-3 w-3 mr-1" />
-                        Flow
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[hsl(208,95%,52%)]/10 text-[hsl(208,95%,52%)]">
-                        <Bot className="h-3 w-3 mr-1" />
-                        IA
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => navigate(`/flows/${agent.id}`)}>
-                      <GitBranch className="mr-2 h-4 w-4" />
-                      Editar Flow
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => openEditDialog(agent)}>
-                      <Pencil className="mr-2 h-4 w-4" />
-                      Editar Agente
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => handleDelete(agent.id)}
-                      className="text-destructive"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Excluir
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Cliente:</p>
-                  <p className="text-sm font-medium">{agent.clients?.name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Prompt:</p>
-                  <p className="text-sm line-clamp-3">{agent.prompt}</p>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  {agent.humanization_enabled && (
-                    <span className="flex items-center gap-1">
-                      ✓ Humanizado
-                    </span>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <AgentsTable 
+          agents={agents} 
+          isLoading={loading}
+          onEdit={openEditDialog}
+          onDelete={handleDelete}
+          onRefresh={loadData}
+        />
       )}
     </div>
   );
