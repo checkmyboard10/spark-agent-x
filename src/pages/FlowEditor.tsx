@@ -4,10 +4,6 @@ import { Node } from '@xyflow/react';
 import { FlowToolbar } from '@/components/flow/FlowToolbar';
 import { FlowSidebar } from '@/components/flow/FlowSidebar';
 import { FlowCanvasWrapper } from '@/components/flow/FlowCanvas';
-import { FlowVariablesPanel } from '@/components/flow/FlowVariablesPanel';
-import { FlowTestPanel } from '@/components/flow/FlowTestPanel';
-import { FlowExecutionsList } from '@/components/flow/FlowExecutionsList';
-import { FlowExecutionViewer } from '@/components/flow/FlowExecutionViewer';
 import { FlowSelectionToolbar } from '@/components/flow/FlowSelectionToolbar';
 import { FlowQuickActions } from '@/components/flow/FlowQuickActions';
 import { FlowSearchPanel } from '@/components/flow/FlowSearchPanel';
@@ -20,7 +16,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, CheckCircle, Info, Search } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const FlowEditor = () => {
   const { flowId } = useParams<{ flowId: string }>();
@@ -265,39 +260,16 @@ const FlowEditor = () => {
             </div>
           )}
           
-          {/* Variables Panel */}
-          <div className="absolute top-4 right-4 z-10 flex gap-4">
+          {/* Search Button */}
+          <div className="absolute top-4 right-4 z-10">
             <Button
               variant="outline"
               size="icon"
               onClick={() => setShowSearch(!showSearch)}
+              title="Buscar nó (Ctrl+F)"
             >
               <Search className="h-4 w-4" />
             </Button>
-            <FlowVariablesPanel nodes={nodes} />
-          </div>
-
-          {/* Right Panel - Test & Executions */}
-          <div className="absolute top-4 right-80 bottom-4 w-96 z-10">
-            <Tabs defaultValue="test" className="h-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="test">Testar</TabsTrigger>
-                <TabsTrigger value="history">Histórico</TabsTrigger>
-              </TabsList>
-              <TabsContent value="test" className="h-[calc(100%-40px)] overflow-auto">
-                {flowId && <FlowTestPanel flowId={flowId} />}
-              </TabsContent>
-              <TabsContent value="history" className="h-[calc(100%-40px)] overflow-auto">
-                {flowId && selectedExecutionId ? (
-                  <FlowExecutionViewer executionId={selectedExecutionId} />
-                ) : (
-                  flowId && <FlowExecutionsList 
-                    flowId={flowId} 
-                    onViewExecution={setSelectedExecutionId}
-                  />
-                )}
-              </TabsContent>
-            </Tabs>
           </div>
         </div>
       </div>
@@ -307,6 +279,7 @@ const FlowEditor = () => {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         node={editingNode}
+        nodes={nodes}
         onSave={handleSaveNode}
       />
     </div>

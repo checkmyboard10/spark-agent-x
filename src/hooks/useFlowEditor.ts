@@ -151,7 +151,10 @@ export const useFlowEditor = (flowId?: string) => {
 
         if (error) throw error;
         setLastSaved(new Date());
-        toast.success('✓ Flow salvo');
+        toast.success('Flow salvo com sucesso!', {
+          description: `Última atualização: ${new Date().toLocaleTimeString('pt-BR')}`,
+          duration: 2000,
+        });
       } else {
         // Check for duplicate name before creating
         const { data: existing } = await supabase

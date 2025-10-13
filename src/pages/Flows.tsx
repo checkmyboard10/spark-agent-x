@@ -25,11 +25,10 @@ const Flows = () => {
   });
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
-  // Fetch flows with related data
+  // Optimized query - combine flows and stats
   const { data: flows = [], isLoading, refetch } = useQuery({
     queryKey: ["flows", filters],
     queryFn: async () => {
-      // Get user's agency_id
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
@@ -41,11 +40,19 @@ const Flows = () => {
 
       if (!profile) throw new Error("Profile not found");
 
-      // ✅ Query otimizada com LEFT JOIN para incluir flows independentes
+      console.log('🔍 Loading flows for agency:', profile.agency_id);
+
+      // Optimized query with specific selects
       let query = supabase
         .from("agent_flows")
         .select(`
-          *,
+          id,
+          name,
+          description,
+          is_active,
+          created_at,
+          updated_at,
+          agent_id,
           agents!left (
             id,
             name,
@@ -58,7 +65,7 @@ const Flows = () => {
         `)
         .eq("agency_id", profile.agency_id);
 
-      // ✅ Aplicar filtros NO BANCO quando possível
+      // Apply filters at database level
       if (filters.search) {
         query = query.ilike('name', `%${filters.search}%`);
       }
@@ -70,11 +77,16 @@ const Flows = () => {
       query = query.order("updated_at", { ascending: false });
 
       const { data, error } = await query;
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error loading flows:', error);
+        throw error;
+      }
+
+      console.log('✅ Loaded flows:', data?.length || 0);
 
       let filtered = data || [];
 
-      // Filtros client-side apenas para client/agent (devido complexidade do JOIN)
+      // Client-side filters only for complex relationships
       if (filters.clientId && filters.clientId !== "all") {
         if (filters.clientId === "independent") {
           filtered = filtered.filter((flow: any) => !flow.agents);
@@ -93,11 +105,11 @@ const Flows = () => {
 
       return filtered;
     },
-    staleTime: 0,
+    staleTime: 30000, // Cache for 30 seconds
     refetchOnMount: true,
   });
 
-  // Fetch stats
+  // Separate optimized stats query
   const { data: stats } = useQuery({
     queryKey: ["flow-stats"],
     queryFn: async () => {
@@ -112,29 +124,29 @@ const Flows = () => {
 
       if (!profile) throw new Error("Profile not found");
 
+      // Get counts in a single query
       const { data: allFlows } = await supabase
         .from("agent_flows")
-        .select("*")
+        .select("id, is_active, created_at")
         .eq("agency_id", profile.agency_id);
 
       const total = allFlows?.length || 0;
       const active = allFlows?.filter((f: any) => f.is_active).length || 0;
       
-      // Count flows linked to agents (where agent has active_flow_id set to this flow)
-      const { data: agents } = await supabase
+      // Count linked flows efficiently
+      const { count: linked } = await supabase
         .from("agents")
-        .select("active_flow_id, client_id, clients!inner(agency_id)")
+        .select("active_flow_id", { count: 'exact', head: true })
         .eq("clients.agency_id", profile.agency_id)
         .not("active_flow_id", "is", null);
-
-      const linked = agents?.length || 0;
 
       const lastCreated = allFlows && allFlows.length > 0 
         ? new Date(allFlows[0].created_at)
         : null;
 
-      return { total, active, linked, lastCreated };
+      return { total, active, linked: linked || 0, lastCreated };
     },
+    staleTime: 60000, // Cache stats for 1 minute
   });
 
   const handleToggleStatus = async (flowId: string, currentStatus: boolean) => {
@@ -259,7 +271,16 @@ const Flows = () => {
       <CreateFlowDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
-        onSuccess={refetch}
+        onSuccess={() => {
+          // Reset filters to show newly created flow
+          setFilters({
+            search: "",
+            clientId: "",
+            agentId: "",
+            status: "all",
+          });
+          refetch();
+        }}
       />
     </div>
   );

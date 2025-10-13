@@ -120,26 +120,33 @@ export const CreateFlowDialog = ({
         .select()
         .single();
 
-    if (error) throw error;
+      if (error) throw error;
 
-    toast.success("Flow criado com sucesso!", {
-      description: "Você será redirecionado para o editor em instantes...",
-      duration: 2000,
-    });
-      
-      // ✅ Invalidar cache ANTES de redirecionar
+      console.log('✅ Flow created:', { 
+        flowId: newFlow.id, 
+        agency_id: profile.agency_id, 
+        name: formData.name 
+      });
+
+      // ✅ Invalidar cache e forçar refetch
       await queryClient.invalidateQueries({ queryKey: ["flows"] });
       await queryClient.invalidateQueries({ queryKey: ["flow-stats"] });
+      await queryClient.refetchQueries({ queryKey: ["flows"] });
+      
+      toast.success("Flow criado com sucesso!", {
+        description: "Redirecionando para o editor...",
+        duration: 2000,
+      });
       
       // Reset form
       setFormData({ name: "", description: "", agentId: "" });
       onOpenChange(false);
       onSuccess();
 
-      // Dar tempo para queries atualizarem antes de redirecionar
+      // Dar mais tempo para queries atualizarem
       setTimeout(() => {
         navigate(`/flows/editor/${newFlow.id}`);
-      }, 100);
+      }, 300);
     } catch (error) {
       console.error("Error creating flow:", error);
       toast.error("Erro ao criar flow");

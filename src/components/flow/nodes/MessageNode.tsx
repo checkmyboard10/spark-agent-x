@@ -1,6 +1,7 @@
 import { memo, useState } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
-import { MessageSquare, Settings } from 'lucide-react';
+import { MessageSquare, Settings, Code } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,6 +16,9 @@ const MessageNode = ({ data, id, selected }: NodeProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [message, setMessage] = useState((data.message as string) || '');
   const [nodeLabel, setNodeLabel] = useState((data.label as string) || 'Mensagem');
+  
+  // Detect if message contains variables
+  const hasVariables = /\{\{[^}]+\}\}/.test(message);
 
   const handleSave = () => {
     data.message = message;
@@ -48,7 +52,15 @@ const MessageNode = ({ data, id, selected }: NodeProps) => {
           </button>
         </div>
 
-        <div className="text-sm font-bold text-white mb-1">{String(nodeLabel)}</div>
+        <div className="flex items-center justify-between mb-1">
+          <div className="text-sm font-bold text-white">{String(nodeLabel)}</div>
+          {hasVariables && (
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-white/20 text-white border-white/30">
+              <Code className="h-2.5 w-2.5 mr-0.5" />
+              Var
+            </Badge>
+          )}
+        </div>
         {message && (
           <div className="text-xs text-white/90 line-clamp-2 mt-2 p-2 bg-black/20 rounded">
             {String(message)}

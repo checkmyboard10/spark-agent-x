@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
+import { VariableSelector } from '@/components/flow/VariableSelector';
 import { 
   AiNodeData, 
   MessageNodeData, 
@@ -28,10 +29,11 @@ interface NodeEditDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   node: Node | null;
+  nodes: Node[];
   onSave: (nodeId: string, data: any) => void;
 }
 
-export const NodeEditDialog = ({ open, onOpenChange, node, onSave }: NodeEditDialogProps) => {
+export const NodeEditDialog = ({ open, onOpenChange, node, nodes, onSave }: NodeEditDialogProps) => {
   const [formData, setFormData] = useState<any>({});
 
   useEffect(() => {
@@ -172,10 +174,35 @@ export const NodeEditDialog = ({ open, onOpenChange, node, onSave }: NodeEditDia
           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
           rows={6}
           placeholder="Digite a mensagem..."
+          className="font-mono text-sm"
         />
         <p className="text-xs text-muted-foreground mt-1">
-          Use {"{{variavel}}"} para inserir variáveis
+          Use {"{{variavel}}"} para inserir variáveis dinâmicas
         </p>
+      </div>
+
+      <div>
+        <Label>Variáveis Disponíveis</Label>
+        <VariableSelector 
+          nodes={nodes}
+          onInsert={(variable) => {
+            // Insert at cursor position if possible
+            const textarea = document.getElementById('message') as HTMLTextAreaElement;
+            if (textarea) {
+              const start = textarea.selectionStart;
+              const end = textarea.selectionEnd;
+              const text = formData.message || '';
+              const newText = text.substring(0, start) + variable + text.substring(end);
+              setFormData({ ...formData, message: newText });
+              
+              // Set cursor position after inserted variable
+              setTimeout(() => {
+                textarea.focus();
+                textarea.setSelectionRange(start + variable.length, start + variable.length);
+              }, 0);
+            }
+          }}
+        />
       </div>
 
       <div>
