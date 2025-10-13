@@ -76,7 +76,6 @@ export default function Agents() {
   const { permissions } = usePermissions();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
-  const [availableFlows, setAvailableFlows] = useState<Flow[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
@@ -89,19 +88,11 @@ export default function Agents() {
     type: "general",
     prompt: "",
     humanization_enabled: true,
-    flow_enabled: false,
-    active_flow_id: null as string | null,
   });
 
   useEffect(() => {
     loadData();
   }, []);
-
-  useEffect(() => {
-    if (dialogOpen) {
-      loadAvailableFlows();
-    }
-  }, [dialogOpen]);
 
   const loadData = async () => {
     try {
@@ -154,45 +145,10 @@ export default function Agents() {
     }
   };
 
-  const loadAvailableFlows = async () => {
-    try {
-      // Buscar agency_id do usuário
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("agency_id")
-        .eq("id", user.id)
-        .single();
-
-      if (!profile) return;
-
-      // Buscar TODOS os flows da agency (ativos ou não)
-      const { data, error } = await supabase
-        .from('agent_flows')
-        .select('id, name, description, is_active')
-        .eq('agency_id', profile.agency_id)
-        .order('name');
-      
-      if (error) throw error;
-      setAvailableFlows(data || []);
-    } catch (error) {
-      console.error('Error loading flows:', error);
-      setAvailableFlows([]);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validações
-    if (formData.flow_enabled && !formData.active_flow_id) {
-      toast.error('Você deve selecionar um flow!');
-      return;
-    }
-    
-    if (!formData.flow_enabled && !formData.prompt.trim()) {
+    if (!formData.prompt.trim()) {
       toast.error('Você deve definir um prompt para o agente IA!');
       return;
     }
@@ -206,8 +162,6 @@ export default function Agents() {
         type: formData.type,
         prompt: formData.prompt,
         humanization_enabled: formData.humanization_enabled,
-        flow_enabled: formData.flow_enabled,
-        active_flow_id: formData.active_flow_id,
       };
 
       if (editingAgent) {
@@ -256,8 +210,6 @@ export default function Agents() {
       type: agent.type,
       prompt: agent.prompt,
       humanization_enabled: agent.humanization_enabled,
-      flow_enabled: agent.flow_enabled || false,
-      active_flow_id: agent.active_flow_id || null,
     });
     await loadKnowledgeFile(agent.id);
     setDialogOpen(true);
@@ -369,8 +321,6 @@ export default function Agents() {
       type: "general",
       prompt: "",
       humanization_enabled: true,
-      flow_enabled: false,
-      active_flow_id: null,
     });
   };
 
@@ -472,146 +422,23 @@ export default function Agents() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-3 border-t pt-4">
-                <div>
-                  <Label className="text-base font-semibold">🤖 Modo de Operação</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Escolha como este agente irá responder
-                  </p>
-                </div>
 
-                <RadioGroup
-                  value={formData.flow_enabled ? 'flow' : 'ai'}
-                  onValueChange={(value) => {
-                    const isFlow = value === 'flow';
-                    setFormData({
-                      ...formData,
-                      flow_enabled: isFlow,
-                      active_flow_id: isFlow ? formData.active_flow_id : null
-                    });
-                  }}
-                >
-                  <div className="flex items-start space-x-2">
-                    <RadioGroupItem value="ai" id="mode-ai" />
-                    <div className="grid gap-1.5 leading-none">
-                      <Label htmlFor="mode-ai" className="font-medium cursor-pointer">
-                        Agente IA Inteligente
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        Usa o prompt do sistema e base de conhecimento para responder
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start space-x-2">
-                    <RadioGroupItem value="flow" id="mode-flow" />
-                    <div className="grid gap-1.5 leading-none">
-                      <Label htmlFor="mode-flow" className="font-medium cursor-pointer">
-                        Flow Visual
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        Executa um flow visual pré-configurado com regras
-                      </p>
-                    </div>
-                  </div>
-                </RadioGroup>
-
-                {formData.flow_enabled && (
-                  <div className="ml-6 mt-3 space-y-2">
-                    <Label htmlFor="active_flow">Selecionar Flow *</Label>
-                    <Select
-                      value={formData.active_flow_id || undefined}
-                      onValueChange={(value) =>
-                        setFormData({ ...formData, active_flow_id: value })
-                      }
-                      required={formData.flow_enabled}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Escolha um flow..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableFlows.length === 0 ? (
-                          <div className="p-4 text-center space-y-2">
-                            <p className="text-sm text-muted-foreground">
-                              Nenhum flow disponível ainda
-                            </p>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                setDialogOpen(false);
-                                navigate('/flows');
-                              }}
-                            >
-                              <Plus className="mr-2 h-4 w-4" />
-                              Criar novo flow
-                            </Button>
-                          </div>
-                        ) : (
-                          availableFlows.map((flow: any) => (
-                            <SelectItem key={flow.id} value={flow.id}>
-                              <div className="flex items-center gap-2">
-                                <span>{flow.name}</span>
-                                {!flow.is_active && (
-                                  <Badge variant="outline" className="text-xs">
-                                    Inativo
-                                  </Badge>
-                                )}
-                              </div>
-                              {flow.description && (
-                                <div className="text-xs text-muted-foreground mt-1">
-                                  {flow.description}
-                                </div>
-                              )}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
-                    
-                    {availableFlows.length === 0 && (
-                      <div className="space-y-2">
-                        <p className="text-xs text-amber-600">
-                          ⚠️ Nenhum flow disponível ainda
-                        </p>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="w-full"
-                          onClick={() => {
-                            setDialogOpen(false);
-                            navigate('/flows');
-                          }}
-                        >
-                          <Plus className="mr-2 h-4 w-4" />
-                          Crie seu Flow
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                )}
+              <div>
+                <Label htmlFor="prompt">Prompt do Sistema *</Label>
+                <Textarea
+                  id="prompt"
+                  value={formData.prompt}
+                  onChange={(e) =>
+                    setFormData({ ...formData, prompt: e.target.value })
+                  }
+                  placeholder="Você é um assistente prestativo que..."
+                  rows={6}
+                  required
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Define como o agente deve se comportar e responder
+                </p>
               </div>
-
-              {!formData.flow_enabled && (
-                <div>
-                  <Label htmlFor="prompt">Prompt do Sistema *</Label>
-                  <Textarea
-                    id="prompt"
-                    value={formData.prompt}
-                    onChange={(e) =>
-                      setFormData({ ...formData, prompt: e.target.value })
-                    }
-                    placeholder="Você é um assistente prestativo que..."
-                    rows={6}
-                    required={!formData.flow_enabled}
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Define como o agente deve se comportar e responder
-                  </p>
-                </div>
-              )}
 
               <div className="flex items-center justify-between">
                 <div>

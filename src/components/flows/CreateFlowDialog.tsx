@@ -120,9 +120,12 @@ export const CreateFlowDialog = ({
         .select()
         .single();
 
-      if (error) throw error;
+    if (error) throw error;
 
-      toast.success("Flow criado com sucesso!");
+    toast.success("Flow criado com sucesso!", {
+      description: "Você será redirecionado para o editor em instantes...",
+      duration: 2000,
+    });
       
       // ✅ Invalidar cache ANTES de redirecionar
       await queryClient.invalidateQueries({ queryKey: ["flows"] });

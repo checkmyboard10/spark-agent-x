@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -11,60 +10,50 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Edit, Trash2, FileText, Bot } from "lucide-react";
+import { Edit, Trash2, Mail, Phone, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-interface Agent {
+interface Client {
   id: string;
   name: string;
-  type: string;
+  email: string | null;
+  phone: string | null;
+  whatsapp_id: string | null;
   active: boolean;
-  has_knowledge?: boolean;
-  clients?: { name: string };
+  created_at: string;
 }
 
-interface AgentsTableProps {
-  agents: Agent[];
+interface ClientsTableProps {
+  clients: Client[];
   isLoading: boolean;
-  onEdit: (agent: Agent) => void;
-  onDelete: (agentId: string, agentName: string) => void;
+  onEdit: (client: Client) => void;
+  onDelete: (clientId: string) => void;
   onRefresh: () => void;
 }
 
-export const AgentsTable = ({
-  agents,
+export const ClientsTable = ({
+  clients,
   isLoading,
   onEdit,
   onDelete,
   onRefresh,
-}: AgentsTableProps) => {
-  const navigate = useNavigate();
-
-  const handleToggleStatus = async (agentId: string, currentStatus: boolean) => {
+}: ClientsTableProps) => {
+  const handleToggleStatus = async (clientId: string, currentStatus: boolean) => {
     try {
       const { error } = await supabase
-        .from("agents")
+        .from("clients")
         .update({ active: !currentStatus })
-        .eq("id", agentId);
+        .eq("id", clientId);
 
       if (error) throw error;
 
-      toast.success(currentStatus ? "Agente desativado" : "Agente ativado");
+      toast.success(currentStatus ? "Cliente desativado" : "Cliente ativado");
       onRefresh();
     } catch (error) {
-      console.error("Error toggling agent status:", error);
-      toast.error("Erro ao alterar status do agente");
+      console.error("Error toggling client status:", error);
+      toast.error("Erro ao alterar status do cliente");
     }
-  };
-
-  const getTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      support: "Suporte",
-      sales: "Vendas",
-      general: "Geral",
-    };
-    return labels[type] || type;
   };
 
   if (isLoading) {
@@ -74,9 +63,9 @@ export const AgentsTable = ({
           <TableHeader>
             <TableRow>
               <TableHead>Nome</TableHead>
-              <TableHead>Cliente</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Base de Conhecimento</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Telefone</TableHead>
+              <TableHead>WhatsApp ID</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -85,9 +74,9 @@ export const AgentsTable = ({
             {[1, 2, 3].map((i) => (
               <TableRow key={i}>
                 <TableCell><Skeleton className="h-5 w-32" /></TableCell>
+                <TableCell><Skeleton className="h-5 w-40" /></TableCell>
+                <TableCell><Skeleton className="h-5 w-28" /></TableCell>
                 <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                <TableCell><Skeleton className="h-5 w-20" /></TableCell>
-                <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                 <TableCell><Skeleton className="h-6 w-12" /></TableCell>
                 <TableCell><Skeleton className="h-8 w-24 ml-auto" /></TableCell>
               </TableRow>
@@ -98,15 +87,15 @@ export const AgentsTable = ({
     );
   }
 
-  if (agents.length === 0) {
+  if (clients.length === 0) {
     return (
       <div className="border rounded-lg p-12 text-center shadow-card">
-        <Bot className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
         <div className="text-muted-foreground text-lg mb-2">
-          Nenhum agente encontrado
+          Nenhum cliente encontrado
         </div>
         <p className="text-sm text-muted-foreground">
-          Crie seu primeiro agente para começar
+          Crie seu primeiro cliente para começar
         </p>
       </div>
     );
@@ -118,49 +107,60 @@ export const AgentsTable = ({
         <TableHeader>
           <TableRow>
             <TableHead>Nome</TableHead>
-            <TableHead>Cliente</TableHead>
-            <TableHead>Tipo</TableHead>
-            <TableHead>Base de Conhecimento</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Telefone</TableHead>
+            <TableHead>WhatsApp ID</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {agents.map((agent) => (
-            <TableRow key={agent.id} className="hover:bg-muted/50 transition-colors">
+          {clients.map((client) => (
+            <TableRow key={client.id} className="hover:bg-muted/50 transition-colors">
               <TableCell className="font-medium">
                 <div className="flex items-center gap-2">
-                  {agent.active ? (
+                  {client.active ? (
                     <div className="h-2 w-2 rounded-full bg-[hsl(155,85%,45%)] shadow-glow" />
                   ) : (
                     <div className="h-2 w-2 rounded-full bg-[hsl(222,20%,25%)]" />
                   )}
-                  <Bot className="h-4 w-4 text-muted-foreground" />
-                  {agent.name}
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  {client.name}
                 </div>
               </TableCell>
               <TableCell>
-                {agent.clients?.name || (
+                {client.email ? (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Mail className="h-3 w-3 text-muted-foreground" />
+                    {client.email}
+                  </div>
+                ) : (
                   <span className="text-muted-foreground text-xs">-</span>
                 )}
               </TableCell>
               <TableCell>
-                <Badge variant="outline">{getTypeLabel(agent.type)}</Badge>
+                {client.phone ? (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Phone className="h-3 w-3 text-muted-foreground" />
+                    {client.phone}
+                  </div>
+                ) : (
+                  <span className="text-muted-foreground text-xs">-</span>
+                )}
               </TableCell>
               <TableCell>
-                {agent.has_knowledge ? (
-                  <Badge variant="secondary" className="gap-1">
-                    <FileText className="h-3 w-3" />
-                    Sim
+                {client.whatsapp_id ? (
+                  <Badge variant="secondary" className="font-mono text-xs">
+                    {client.whatsapp_id}
                   </Badge>
                 ) : (
-                  <span className="text-xs text-muted-foreground">Não</span>
+                  <span className="text-muted-foreground text-xs">-</span>
                 )}
               </TableCell>
               <TableCell>
                 <Switch
-                  checked={agent.active}
-                  onCheckedChange={() => handleToggleStatus(agent.id, agent.active)}
+                  checked={client.active}
+                  onCheckedChange={() => handleToggleStatus(client.id, client.active)}
                   className="data-[state=checked]:bg-[hsl(155,85%,45%)]"
                 />
               </TableCell>
@@ -169,16 +169,16 @@ export const AgentsTable = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onEdit(agent)}
-                    title="Editar agente"
+                    onClick={() => onEdit(client)}
+                    title="Editar cliente"
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => onDelete(agent.id, agent.name)}
-                    title="Excluir agente"
+                    onClick={() => onDelete(client.id)}
+                    title="Excluir cliente"
                     className="hover:text-destructive"
                   >
                     <Trash2 className="h-4 w-4" />
