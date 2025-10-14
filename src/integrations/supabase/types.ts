@@ -101,6 +101,7 @@ export type Database = {
         Row: {
           agency_id: string
           agent_id: string | null
+          client_id: string | null
           created_at: string
           description: string | null
           edges: Json
@@ -115,6 +116,7 @@ export type Database = {
         Insert: {
           agency_id: string
           agent_id?: string | null
+          client_id?: string | null
           created_at?: string
           description?: string | null
           edges?: Json
@@ -129,6 +131,7 @@ export type Database = {
         Update: {
           agency_id?: string
           agent_id?: string | null
+          client_id?: string | null
           created_at?: string
           description?: string | null
           edges?: Json
@@ -153,6 +156,13 @@ export type Database = {
             columns: ["agent_id"]
             isOneToOne: false
             referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_flows_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
         ]

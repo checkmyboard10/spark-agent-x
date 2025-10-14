@@ -40,12 +40,12 @@ export const CreateFlowDialog = ({
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    agentId: "", // Optional
+    clientId: "",
   });
 
-  // Fetch agents for optional linking
-  const { data: agents = [] } = useQuery({
-    queryKey: ["agents-for-flows"],
+  // Fetch clients for optional linking
+  const { data: clients = [] } = useQuery({
+    queryKey: ["clients-for-flows"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
@@ -59,22 +59,12 @@ export const CreateFlowDialog = ({
       if (!profile) return [];
 
       const { data } = await supabase
-        .from("agents")
-        .select(`
-          id,
-          name,
-          clients (
-            id,
-            name,
-            agency_id
-          )
-        `)
-        .eq("clients.agency_id", profile.agency_id)
+        .from("clients")
+        .select("id, name")
+        .eq("agency_id", profile.agency_id)
         .order("name");
 
-      return (data || []).filter((agent: any) => 
-        agent.clients?.agency_id === profile.agency_id
-      );
+      return data || [];
     },
   });
 
@@ -102,7 +92,7 @@ export const CreateFlowDialog = ({
         .from("agent_flows")
         .insert({
           agency_id: profile.agency_id,
-          agent_id: formData.agentId || null, // OPTIONAL
+          client_id: formData.clientId || null,
           name: formData.name,
           description: formData.description || null,
           nodes: [
@@ -139,7 +129,7 @@ export const CreateFlowDialog = ({
       });
       
       // Reset form
-      setFormData({ name: "", description: "", agentId: "" });
+      setFormData({ name: "", description: "", clientId: "" });
       onOpenChange(false);
       onSuccess();
 
@@ -188,24 +178,24 @@ export const CreateFlowDialog = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="agent">Vincular a um Agente (Opcional)</Label>
+            <Label htmlFor="client">Vincular a um Cliente (Opcional)</Label>
             <Select
-              value={formData.agentId}
-              onValueChange={(value) => setFormData({ ...formData, agentId: value })}
+              value={formData.clientId}
+              onValueChange={(value) => setFormData({ ...formData, clientId: value })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Nenhum agente (pode vincular depois)" />
+                <SelectValue placeholder="Nenhum cliente (flow independente)" />
               </SelectTrigger>
               <SelectContent>
-                {agents.map((agent: any) => (
-                  <SelectItem key={agent.id} value={agent.id}>
-                    {agent.name} - {agent.clients?.name}
+                {clients.map((client: any) => (
+                  <SelectItem key={client.id} value={client.id}>
+                    {client.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
-              Você pode criar um flow sem vínculo e associá-lo a um agente depois
+              Flows podem ser independentes ou vinculados a clientes
             </p>
           </div>
         </div>

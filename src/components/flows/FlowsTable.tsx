@@ -49,7 +49,6 @@ export const FlowsTable = ({
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead>Cliente</TableHead>
-              <TableHead>Agente</TableHead>
               <TableHead>Última Modificação</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
@@ -59,7 +58,6 @@ export const FlowsTable = ({
             {[1, 2, 3].map((i) => (
               <TableRow key={i}>
                 <TableCell><Skeleton className="h-5 w-32" /></TableCell>
-                <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                 <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                 <TableCell><Skeleton className="h-5 w-28" /></TableCell>
                 <TableCell><Skeleton className="h-6 w-12" /></TableCell>
@@ -93,7 +91,6 @@ export const FlowsTable = ({
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead>Cliente</TableHead>
-              <TableHead>Agente</TableHead>
               <TableHead>Última Modificação</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
@@ -113,26 +110,12 @@ export const FlowsTable = ({
                   </div>
                 </TableCell>
                 <TableCell>
-                  {flow.agents?.clients?.name || (
-                    <span className="text-muted-foreground">-</span>
+                  {flow.clients?.name || (
+                    <span className="text-muted-foreground italic">
+                      Flow Independente
+                    </span>
                   )}
                 </TableCell>
-              <TableCell>
-                {flow.agents ? (
-                  <div>
-                    <Badge variant="outline">{flow.agents.name}</Badge>
-                    {flow.agents.clients && (
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {flow.agents.clients.name}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <span className="text-xs text-muted-foreground italic">
-                    Não vinculado
-                  </span>
-                )}
-              </TableCell>
                 <TableCell>
                   {format(new Date(flow.updated_at), "dd/MM/yyyy HH:mm", {
                     locale: ptBR,

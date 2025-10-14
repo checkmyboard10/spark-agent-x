@@ -12,15 +12,13 @@ import { toast } from "sonner";
 export interface FlowFilters {
   search: string;
   clientId: string;
-  agentId: string;
   status: string;
 }
 
 const Flows = () => {
   const [filters, setFilters] = useState<FlowFilters>({
     search: "",
-    clientId: "",
-    agentId: "",
+    clientId: "all",
     status: "all",
   });
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -42,7 +40,7 @@ const Flows = () => {
 
       console.log('🔍 Loading flows for agency:', profile.agency_id);
 
-      // Optimized query with specific selects
+      // Optimized query - direct client relationship
       let query = supabase
         .from("agent_flows")
         .select(`
@@ -52,22 +50,25 @@ const Flows = () => {
           is_active,
           created_at,
           updated_at,
-          agent_id,
-          agents!left (
+          client_id,
+          clients!left (
             id,
-            name,
-            client_id,
-            clients (
-              id,
-              name
-            )
+            name
           )
         `)
         .eq("agency_id", profile.agency_id);
 
-      // Apply filters at database level
+      // Apply filters at database level for better performance
       if (filters.search) {
         query = query.ilike('name', `%${filters.search}%`);
+      }
+
+      if (filters.clientId && filters.clientId !== "all") {
+        if (filters.clientId === "independent") {
+          query = query.is('client_id', null);
+        } else {
+          query = query.eq('client_id', filters.clientId);
+        }
       }
 
       if (filters.status !== "all") {
@@ -84,26 +85,7 @@ const Flows = () => {
 
       console.log('✅ Loaded flows:', data?.length || 0);
 
-      let filtered = data || [];
-
-      // Client-side filters only for complex relationships
-      if (filters.clientId && filters.clientId !== "all") {
-        if (filters.clientId === "independent") {
-          filtered = filtered.filter((flow: any) => !flow.agents);
-        } else {
-          filtered = filtered.filter((flow: any) => 
-            flow.agents?.client_id === filters.clientId
-          );
-        }
-      }
-
-      if (filters.agentId && filters.agentId !== "all") {
-        filtered = filtered.filter((flow: any) => 
-          flow.agent_id === filters.agentId
-        );
-      }
-
-      return filtered;
+      return data || [];
     },
     staleTime: 30000, // Cache for 30 seconds
     refetchOnMount: true,
@@ -179,16 +161,16 @@ const Flows = () => {
 
       if (!profile) throw new Error("Profile not found");
 
-      const { error } = await supabase.from("agent_flows").insert({
-        agency_id: profile.agency_id,
-        agent_id: flow.agent_id,
-        name: `${flow.name} (Cópia)`,
-        description: flow.description,
-        nodes: flow.nodes,
-        edges: flow.edges,
-        variables: flow.variables,
-        is_active: false,
-      });
+    const { error } = await supabase.from("agent_flows").insert({
+      agency_id: profile.agency_id,
+      client_id: flow.client_id,
+      name: `${flow.name} (Cópia)`,
+      description: flow.description,
+      nodes: flow.nodes,
+      edges: flow.edges,
+      variables: flow.variables,
+      is_active: false,
+    });
 
       if (error) throw error;
 
@@ -275,8 +257,7 @@ const Flows = () => {
           // Reset filters to show newly created flow
           setFilters({
             search: "",
-            clientId: "",
-            agentId: "",
+            clientId: "all",
             status: "all",
           });
           refetch();
