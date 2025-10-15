@@ -59,7 +59,7 @@ export default function WhatsAppIntegration() {
   // Connect mutation
   const connectMutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke('connect-whatsapp', {
+      const { data, error } = await supabase.functions.invoke('evolution-create-instance', {
         body: { clientId: selectedClient },
       });
 
@@ -70,7 +70,7 @@ export default function WhatsAppIntegration() {
       queryClient.invalidateQueries({ queryKey: ['whatsapp-connection'] });
       toast({
         title: "Conectando...",
-        description: "Aguarde enquanto geramos seu QR Code",
+        description: "Instância criada! Aguarde o QR Code aparecer...",
       });
     },
     onError: (error: Error) => {
@@ -81,6 +81,38 @@ export default function WhatsAppIntegration() {
       });
     },
   });
+
+  // QR Code polling mutation
+  const qrCodeMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke('evolution-get-qrcode', {
+        body: { clientId: selectedClient },
+      });
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      if (data.status === 'connected') {
+        queryClient.invalidateQueries({ queryKey: ['whatsapp-connection'] });
+        toast({
+          title: "Conectado!",
+          description: "WhatsApp conectado com sucesso!",
+        });
+      }
+    },
+  });
+
+  // Poll for QR code when status is connecting
+  useEffect(() => {
+    if (connection?.status === 'connecting' && selectedClient) {
+      const interval = setInterval(() => {
+        qrCodeMutation.mutate();
+      }, 3000);
+
+      return () => clearInterval(interval);
+    }
+  }, [connection?.status, selectedClient]);
 
   // Disconnect mutation
   const disconnectMutation = useMutation({
@@ -216,17 +248,27 @@ export default function WhatsAppIntegration() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex flex-col items-center">
-                <div className="bg-white p-6 rounded-lg">
-                  <div className="font-mono text-xs break-all max-w-md">
-                    {connection.qr_code}
-                  </div>
+                <div className="bg-white p-6 rounded-lg shadow-lg">
+                  <img 
+                    src={connection.qr_code.startsWith('data:image') 
+                      ? connection.qr_code 
+                      : `data:image/png;base64,${connection.qr_code}`
+                    } 
+                    alt="QR Code WhatsApp" 
+                    className="w-64 h-64 object-contain"
+                  />
                 </div>
-                <p className="text-sm text-muted-foreground mt-4 text-center">
+                <p className="text-sm text-muted-foreground mt-4 text-center max-w-md">
+                  <strong>Como conectar:</strong><br />
                   1. Abra o WhatsApp no seu celular<br />
-                  2. Vá em Configurações → Aparelhos conectados<br />
-                  3. Toque em "Conectar um aparelho"<br />
-                  4. Aponte para este código
+                  2. Vá em <strong>Configurações → Aparelhos conectados</strong><br />
+                  3. Toque em <strong>"Conectar um aparelho"</strong><br />
+                  4. Aponte a câmera para este QR Code
                 </p>
+                <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Aguardando escaneamento...
+                </div>
               </CardContent>
             </Card>
           )}

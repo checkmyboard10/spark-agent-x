@@ -41,3 +41,15 @@ verify_jwt = true
 
 [functions.execute-flow]
 verify_jwt = true
+
+[functions.evolution-create-instance]
+verify_jwt = true
+
+[functions.evolution-get-qrcode]
+verify_jwt = true
+
+[functions.evolution-webhook]
+verify_jwt = false
+
+[functions.evolution-send-message]
+verify_jwt = true

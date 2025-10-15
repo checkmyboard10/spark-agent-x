@@ -1040,37 +1040,46 @@ export type Database = {
           client_id: string
           connected_at: string | null
           created_at: string
+          evolution_data: Json | null
           id: string
+          instance_name: string | null
           last_seen: string | null
           metadata: Json | null
           phone_number: string | null
           qr_code: string | null
           status: Database["public"]["Enums"]["whatsapp_status"]
           updated_at: string
+          webhook_url: string | null
         }
         Insert: {
           client_id: string
           connected_at?: string | null
           created_at?: string
+          evolution_data?: Json | null
           id?: string
+          instance_name?: string | null
           last_seen?: string | null
           metadata?: Json | null
           phone_number?: string | null
           qr_code?: string | null
           status?: Database["public"]["Enums"]["whatsapp_status"]
           updated_at?: string
+          webhook_url?: string | null
         }
         Update: {
           client_id?: string
           connected_at?: string | null
           created_at?: string
+          evolution_data?: Json | null
           id?: string
+          instance_name?: string | null
           last_seen?: string | null
           metadata?: Json | null
           phone_number?: string | null
           qr_code?: string | null
           status?: Database["public"]["Enums"]["whatsapp_status"]
           updated_at?: string
+          webhook_url?: string | null
         }
         Relationships: [
           {
