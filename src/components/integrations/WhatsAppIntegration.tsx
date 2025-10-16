@@ -74,9 +74,10 @@ export default function WhatsAppIntegration() {
       });
     },
     onError: (error: Error) => {
+      console.error('Connect error:', error);
       toast({
         title: "Erro ao conectar",
-        description: error.message,
+        description: error.message || "Verifique as configurações da Evolution API",
         variant: "destructive",
       });
     },

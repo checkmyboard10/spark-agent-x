@@ -32,8 +32,14 @@ serve(async (req) => {
     const EVOLUTION_API_KEY = Deno.env.get('EVOLUTION_API_KEY');
 
     if (!EVOLUTION_API_URL || !EVOLUTION_API_KEY) {
-      throw new Error('Configuração da Evolution API não encontrada');
+      console.error('[Evolution] Variáveis de ambiente faltando:', {
+        hasUrl: !!EVOLUTION_API_URL,
+        hasKey: !!EVOLUTION_API_KEY
+      });
+      throw new Error('Evolution API não configurada. Configure EVOLUTION_API_URL e EVOLUTION_API_KEY nas configurações.');
     }
+
+    console.log('[Evolution] Usando API URL:', EVOLUTION_API_URL);
 
     console.log('[Evolution] Criando instância para cliente:', clientId);
 
@@ -56,8 +62,18 @@ serve(async (req) => {
 
     if (!createResponse.ok) {
       const errorText = await createResponse.text();
-      console.error('[Evolution] Erro ao criar instância:', errorText);
-      throw new Error(`Erro ao criar instância: ${errorText}`);
+      console.error('[Evolution] Erro ao criar instância:', {
+        status: createResponse.status,
+        statusText: createResponse.statusText,
+        error: errorText,
+        url: EVOLUTION_API_URL,
+      });
+      
+      if (createResponse.status === 401) {
+        throw new Error('Erro de autenticação na Evolution API. Verifique se a EVOLUTION_API_KEY está correta.');
+      }
+      
+      throw new Error(`Falha ao criar instância Evolution (${createResponse.status}): ${errorText}`);
     }
 
     const instanceData = await createResponse.json();
