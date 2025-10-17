@@ -100,7 +100,7 @@ export const APISettings = () => {
               Base URL
             </h4>
             <code className="text-sm bg-background px-2 py-1 rounded block">
-              https://api.aiwhatsapp.app/v1
+              https://api.alicia.app/v1
             </code>
           </div>
 

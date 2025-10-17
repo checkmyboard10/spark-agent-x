@@ -32,7 +32,7 @@ export const AgencyLogo = ({ className = "", size = "md" }: AgencyLogoProps) => 
   // Fallback: show company name or default
   return (
     <div className={`${sizeClasses[size]} flex items-center justify-center bg-primary text-primary-foreground rounded font-bold ${className}`}>
-      {(settings?.company_name || "AI")?.charAt(0)}
+      {(settings?.company_name || "Alic.ia")?.charAt(0)}
     </div>
   );
 };

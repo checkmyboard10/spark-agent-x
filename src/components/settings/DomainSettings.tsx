@@ -52,7 +52,7 @@ export const DomainSettings = () => {
       setSubdomainAvailable(true);
       toast({
         title: "Subdomínio disponível!",
-        description: `${subdomain}.aiwhatsapp.app está disponível.`,
+        description: `${subdomain}.alicia.app está disponível.`,
       });
     } catch (error) {
       toast({
@@ -119,12 +119,12 @@ export const DomainSettings = () => {
                 }}
               />
               <span className="flex items-center text-muted-foreground">
-                .aiwhatsapp.app
+                .alicia.app
               </span>
             </div>
             {subdomain && (
               <p className="text-xs text-muted-foreground">
-                Seu subdomínio será: <strong>{subdomain}.aiwhatsapp.app</strong>
+                Seu subdomínio será: <strong>{subdomain}.alicia.app</strong>
               </p>
             )}
             {subdomainAvailable !== null && (
@@ -166,7 +166,7 @@ export const DomainSettings = () => {
             <ol className="list-decimal list-inside space-y-1 text-sm text-muted-foreground">
               <li>Adicione um registro CNAME no seu provedor de DNS</li>
               <li>Nome: app (ou seu subdomínio desejado)</li>
-              <li>Valor: proxy.aiwhatsapp.app</li>
+              <li>Valor: proxy.alicia.app</li>
               <li>Aguarde até 48h para propagação do DNS</li>
             </ol>
           </div>
