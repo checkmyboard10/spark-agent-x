@@ -103,7 +103,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex items-center gap-3">
             <AgencyLogo size="md" />
             <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              {settings?.company_name || "Alic.ia"}
+              Alic.ia
             </h1>
           </div>
           <Button
@@ -167,7 +167,7 @@ export default function Layout({ children }: LayoutProps) {
           </Button>
           <AgencyLogo size="sm" />
           <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            {settings?.company_name || "Alic.ia"}
+            Alic.ia
           </h1>
         </header>
 
