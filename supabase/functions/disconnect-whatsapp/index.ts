@@ -28,19 +28,62 @@ serve(async (req) => {
       throw new Error('Client ID is required');
     }
 
-    // Update WhatsApp connection status to disconnected
+    // Get connection details
+    const { data: connection, error: fetchError } = await supabaseClient
+      .from('whatsapp_connections')
+      .select('instance_name')
+      .eq('client_id', clientId)
+      .single();
+
+    if (fetchError || !connection) {
+      throw new Error('WhatsApp connection not found');
+    }
+
+    if (!connection.instance_name) {
+      throw new Error('Instance name not found');
+    }
+
+    // Delete instance from Evolution API
+    const evolutionApiUrl = Deno.env.get('EVOLUTION_API_URL');
+    const evolutionApiKey = Deno.env.get('EVOLUTION_API_KEY');
+
+    if (!evolutionApiUrl || !evolutionApiKey) {
+      throw new Error('Evolution API configuration missing');
+    }
+
+    const deleteResponse = await fetch(
+      `${evolutionApiUrl}/instance/delete/${connection.instance_name}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'apikey': evolutionApiKey,
+        },
+      }
+    );
+
+    if (!deleteResponse.ok) {
+      const errorText = await deleteResponse.text();
+      console.error('Evolution API delete error:', errorText);
+      throw new Error(`Failed to delete instance: ${errorText}`);
+    }
+
+    console.log('Instance deleted successfully:', connection.instance_name);
+
+    // Update database status to disconnected
     const { error } = await supabaseClient
       .from('whatsapp_connections')
       .update({
         status: 'disconnected',
         phone_number: null,
         connected_at: null,
+        instance_name: null,
+        qr_code: null,
         last_seen: new Date().toISOString(),
       })
       .eq('client_id', clientId);
 
     if (error) {
-      console.error('Error disconnecting:', error);
+      console.error('Error updating database:', error);
       throw error;
     }
 

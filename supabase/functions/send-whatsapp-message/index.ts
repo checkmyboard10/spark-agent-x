@@ -28,33 +28,46 @@ serve(async (req) => {
       throw new Error('Conversation ID and content are required');
     }
 
-    // Get agent settings and knowledge base
+    // Get conversation details
+    const { data: conversation, error: convError } = await supabaseClient
+      .from('conversations')
+      .select('client_id, contact_phone')
+      .eq('id', conversationId)
+      .single();
+
+    if (convError || !conversation) {
+      throw new Error('Conversation not found');
+    }
+
+    // Get WhatsApp connection
+    const { data: connection, error: connError } = await supabaseClient
+      .from('whatsapp_connections')
+      .select('instance_name, status')
+      .eq('client_id', conversation.client_id)
+      .single();
+
+    if (connError || !connection) {
+      throw new Error('WhatsApp connection not found');
+    }
+
+    if (connection.status !== 'connected') {
+      throw new Error('WhatsApp is not connected');
+    }
+
+    // Get agent settings for humanization
     let typingDelay = 1500;
     let humanizationEnabled = true;
-    let knowledgeContent = '';
 
     if (agentId) {
       const { data: agent } = await supabaseClient
         .from('agents')
-        .select('typing_delay_ms, humanization_enabled, prompt')
+        .select('typing_delay_ms, humanization_enabled')
         .eq('id', agentId)
-        .single();
+        .maybeSingle();
 
       if (agent) {
         typingDelay = agent.typing_delay_ms || 1500;
         humanizationEnabled = agent.humanization_enabled !== false;
-      }
-
-      // Fetch knowledge base for this agent
-      const { data: knowledge } = await supabaseClient
-        .from('agent_knowledge_base')
-        .select('extracted_content')
-        .eq('agent_id', agentId)
-        .maybeSingle();
-
-      if (knowledge?.extracted_content) {
-        knowledgeContent = knowledge.extracted_content;
-        console.log('Knowledge base loaded for agent:', agentId);
       }
     }
 
@@ -63,23 +76,65 @@ serve(async (req) => {
       await new Promise(resolve => setTimeout(resolve, typingDelay));
     }
 
-    // Create message
-    const { data: message, error } = await supabaseClient
+    // Create message with pending status
+    const { data: message, error: msgError } = await supabaseClient
       .from('messages')
       .insert({
         conversation_id: conversationId,
         direction: 'outgoing',
         content,
         message_type: 'text',
-        status: 'sent',
+        status: 'pending',
         sent_at: new Date().toISOString(),
       })
       .select()
       .single();
 
-    if (error) {
-      console.error('Error creating message:', error);
-      throw error;
+    if (msgError) {
+      console.error('Error creating message:', msgError);
+      throw msgError;
+    }
+
+    // Send via Evolution API
+    try {
+      const { data: sendResult, error: sendError } = await supabaseClient.functions.invoke(
+        'evolution-send-message',
+        {
+          body: {
+            clientId: conversation.client_id,
+            phone: conversation.contact_phone,
+            message: content,
+          },
+        }
+      );
+
+      if (sendError) throw sendError;
+
+      // Update message status to sent
+      await supabaseClient
+        .from('messages')
+        .update({
+          status: 'sent',
+          delivered_at: new Date().toISOString(),
+        })
+        .eq('id', message.id);
+
+      console.log('Message sent successfully:', sendResult);
+    } catch (sendError) {
+      console.error('Error sending via Evolution API:', sendError);
+      
+      const errorMessage = sendError instanceof Error ? sendError.message : 'Unknown error';
+      
+      // Update message status to failed
+      await supabaseClient
+        .from('messages')
+        .update({
+          status: 'failed',
+          metadata: { error: errorMessage },
+        })
+        .eq('id', message.id);
+
+      throw new Error(`Failed to send message: ${errorMessage}`);
     }
 
     // Update conversation last_message_at
@@ -87,27 +142,6 @@ serve(async (req) => {
       .from('conversations')
       .update({ last_message_at: new Date().toISOString() })
       .eq('id', conversationId);
-
-    // Simulate delivery and read status
-    setTimeout(async () => {
-      await supabaseClient
-        .from('messages')
-        .update({
-          status: 'delivered',
-          delivered_at: new Date().toISOString(),
-        })
-        .eq('id', message.id);
-    }, 2000);
-
-    setTimeout(async () => {
-      await supabaseClient
-        .from('messages')
-        .update({
-          status: 'read',
-          read_at: new Date().toISOString(),
-        })
-        .eq('id', message.id);
-    }, 5000);
 
     return new Response(
       JSON.stringify({ message }),

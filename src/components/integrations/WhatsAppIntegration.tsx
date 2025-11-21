@@ -274,15 +274,6 @@ export default function WhatsAppIntegration() {
             </Card>
           )}
 
-          {/* Info Card */}
-          <Card className="bg-primary/5 border-primary/20">
-            <CardContent className="pt-6">
-              <p className="text-sm">
-                <strong>Nota:</strong> Esta é uma simulação de conexão WhatsApp. Em produção, você precisará
-                integrar com a API oficial do WhatsApp Business ou usar um provedor como Twilio, MessageBird, etc.
-              </p>
-            </CardContent>
-          </Card>
         </CardContent>
       </Card>
     </div>
